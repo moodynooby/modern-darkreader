@@ -140,7 +140,7 @@ export default tslint.config({
         '@stylistic/semi': ['error', 'always'],
 
         '@stylistic/quotes': ['error', 'single', {
-            allowTemplateLiterals: true,
+            allowTemplateLiterals: 'always',
             avoidEscape: true,
         }],
 
