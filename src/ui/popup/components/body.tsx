@@ -16,8 +16,6 @@ import Loader from './loader';
 import MoreSettings from './more-settings';
 import SiteListSettings from './site-list-settings';
 
-declare const __THUNDERBIRD__: boolean;
-
 interface BodyProps {
   data: ExtensionData;
   actions: ExtensionActions;
@@ -137,22 +135,17 @@ function Body(
                 activeTab={state.activeTab}
                 onSwitchTab={(tab) => setState({activeTab: tab})}
                 tabs={
-                    __THUNDERBIRD__
-                        ? {
-                            Filter: filterTab,
-                            More: moreTab,
-                        }
-                        : {
-                            Filter: filterTab,
-                            'Site list': (
-                                <SiteListSettings
-                                    data={props.data}
-                                    actions={props.actions}
-                                    isFocused={state.activeTab === 'Site list'}
-                                />
-                            ),
-                            More: moreTab,
-                        }
+                    {
+                        Filter: filterTab,
+                        'Site list': (
+                            <SiteListSettings
+                                data={props.data}
+                                actions={props.actions}
+                                isFocused={state.activeTab === 'Site list'}
+                            />
+                        ),
+                        More: moreTab,
+                    }
                 }
                 tabLabels={{
                     Filter: getLocalMessage('filter'),

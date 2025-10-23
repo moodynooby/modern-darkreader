@@ -15,7 +15,6 @@ import {isPanel} from './utils/tab';
 
 declare const __CHROMIUM_MV2__: boolean;
 declare const __CHROMIUM_MV3__: boolean;
-declare const __THUNDERBIRD__: boolean;
 
 interface TabManagerOptions {
     getConnectionMessage: (tabURl: string, url: string, isTopFrame: boolean, topFrameHasDarkTheme?: boolean) => Promise<MessageBGtoCS>;
@@ -213,14 +212,7 @@ export default class TabManager {
                         TabManager.sendDocumentMessage(sender.tab!.id!, sender.documentId!, {type: MessageTypeBGtoCS.FETCH_RESPONSE, id, ...response}, sender.frameId!);
                     };
 
-                    if (__THUNDERBIRD__) {
-                        // In thunderbird some CSS is loaded on a chrome:// URL.
-                        // Thunderbird restricted Add-ons to load those URL's.
-                        if ((message.data.url as string).startsWith('chrome://')) {
-                            sendResponse({data: null});
-                            return;
-                        }
-                    }
+
                     const {url, responseType, mimeType, origin} = message.data;
                     if (!TabManager.fileLoader) {
                         TabManager.fileLoader = createFileLoader();

@@ -1,5 +1,4 @@
 declare const __FIREFOX_MV2__: boolean;
-declare const __THUNDERBIRD__: boolean;
 
 type OverrideFactory<T, P extends keyof T> = (native: T[P] & ((...args: any[]) => any)) => (this: T, ...args: Parameters<typeof native>) => ReturnType<typeof native>;
 
@@ -79,7 +78,7 @@ export function injectProxy(enableStyleSheetsProxy: boolean, enableCustomElement
         if (sheet.ownerNode && !isDRSheet(sheet)) {
             sheet.ownerNode.dispatchEvent(updateSheetEvent);
         }
-        if (__FIREFOX_MV2__ || __THUNDERBIRD__) {
+        if (__FIREFOX_MV2__) {
             onFFSheetChange(sheet);
         } else if (adoptedSheetOwners.has(sheet)) {
             onAdoptedSheetChange(sheet);
@@ -91,7 +90,7 @@ export function injectProxy(enableStyleSheetsProxy: boolean, enableCustomElement
         if (ownerNode && !isDRSheet(sheet) && promise && promise instanceof Promise) {
             promise.then(() => ownerNode.dispatchEvent(updateSheetEvent));
         }
-        if (__FIREFOX_MV2__ || __THUNDERBIRD__) {
+        if (__FIREFOX_MV2__) {
             if (promise && promise instanceof Promise) {
                 promise.then(() => onFFSheetChange(sheet));
             }
@@ -256,7 +255,7 @@ export function injectProxy(enableStyleSheetsProxy: boolean, enableCustomElement
         });
     }
 
-    if (!(__FIREFOX_MV2__ || __THUNDERBIRD__)) {
+    if (!(__FIREFOX_MV2__)) {
         const adoptedSheetsSourceProxies = new WeakMap<CSSStyleSheet[], CSSStyleSheet[]>();
         const adoptedSheetsProxySources = new WeakMap<CSSStyleSheet[], CSSStyleSheet[]>();
         const adoptedSheetsChangeEvent = new CustomEvent('__darkreader__adoptedStyleSheetsChange');
@@ -363,7 +362,7 @@ export function injectProxy(enableStyleSheetsProxy: boolean, enableCustomElement
         });
     }
 
-    if (__FIREFOX_MV2__ || __THUNDERBIRD__) {
+    if (__FIREFOX_MV2__) {
         type StyleSheetCommand = {
             type: 'insert' | 'delete' | 'replace';
             path: number[];

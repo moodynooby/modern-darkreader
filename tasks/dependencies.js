@@ -45,7 +45,7 @@ async function command(script) {
 }
 
 async function buildAll() {
-    await command('npm run build -- --release --api --chrome-mv2 --chrome-mv3 --firefox-mv2 --thunderbird');
+    await command('npm run build -- --release --api --chrome-mv2 --chrome-mv3 --firefox-mv2 ');
 }
 
 async function patchPackage(outdated) {
@@ -89,7 +89,6 @@ async function main() {
     await command('diff -r build-old/release/chrome build/release/chrome');
     await command('diff -r build-old/release/chrome-mv3 build/release/chrome-mv3');
     await command('diff -r build-old/release/firefox build/release/firefox');
-    await command('diff -r build-old/release/thunderbird build/release/thunderbird');
     await command('diff darkreader-old.js darkreader.js');
     await command('diff darkreader-old.mjs darkreader.mjs');
     log.ok('Dependency upgrade does not result in change to built output');

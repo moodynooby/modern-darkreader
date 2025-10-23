@@ -13,7 +13,6 @@ import {isFirefox} from '../utils/platform';
 import {makeFirefoxHappy} from './make-firefox-happy';
 import {ASSERT} from './utils/log';
 
-declare const __PLUS__: boolean;
 
 export interface ExtensionAdapter {
   collect: () => Promise<ExtensionData>;

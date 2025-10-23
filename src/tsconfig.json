@@ -22,7 +22,7 @@
         "jsxFactory": "m",
         "noEmit": true,
         "paths": {
-            "@plus/*": ["./stubs/*"]
+            "@plus/*": ["./plus/*"]
         }
     }
 }
