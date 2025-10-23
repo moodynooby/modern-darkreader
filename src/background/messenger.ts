@@ -8,10 +8,13 @@ import type {
     MessageBGtoUI,
 } from '../definitions';
 import {MessageTypeBGtoUI, MessageTypeUItoBG} from '../utils/message';
+import {HOMEPAGE_URL} from '../utils/links';
 import {isFirefox} from '../utils/platform';
 
 import {makeFirefoxHappy} from './make-firefox-happy';
 import {ASSERT} from './utils/log';
+
+declare const __PLUS__: boolean;
 
 export interface ExtensionAdapter {
   collect: () => Promise<ExtensionData>;
@@ -54,7 +57,13 @@ export default class Messenger {
             chrome.runtime.getURL('/ui/popup/index.html'),
             chrome.runtime.getURL('/ui/options/index.html'),
         ];
-        if (allowedSenderURL.includes(sender.url!)) {
+        if (
+            allowedSenderURL.includes(sender.url!) || (
+                __PLUS__ &&
+                message.type === MessageTypeUItoBG.CHANGE_SETTINGS &&
+                sender.url?.startsWith(`${HOMEPAGE_URL}/plus/activate/`)
+            )
+        ) {
             Messenger.onUIMessage(message as MessageUItoBG, sendResponse);
             return [
                 MessageTypeUItoBG.GET_DATA,
