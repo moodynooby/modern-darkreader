@@ -1,28 +1,33 @@
-@color-back: #111318;                 // Ink-charcoal base (low glare, modern)
-@color-fore: #E8E3DC;                 // Warm ivory text for a softer feel
+@color-back: #111318;                 // Base layer (darkest)
+@color-fore: #E8E3DC;                 // Warm ivory text
 
-@color-control-back: #111318;
-@color-control-hover: #171A20;        // Gentle elevation, not jumpy
-@color-control-active: #5E7E98;       // Muted slate-blue for a calm active state
+
+@color-control-back: #1A1E25;         // Elevated +5% lighter for depth
+@color-control-hover: #232831;        // Higher elevation +8% lighter
+@color-control-active: #5E7E98;       // Muted slate-blue for active
 @color-control-fore: #FFFFFF;
-@color-control-fore-inactive: #9FA9B1; // Cool-muted neutral for disabled
+@color-control-fore-inactive: #9FA9B1;
 
-@color-input-back: #111318;
-@color-input-hover: #171A20;
-@color-input-active: #1A1E25;         // Slight luminance lift for focus
+
+@color-input-back: #0E1015;           // Recessed -2% darker (below base)
+@color-input-hover: #181C23;          // Elevated +4% on hover
+@color-input-active: #1F242C;         // More elevation +6% on focus
 @color-input-fore: #E8E3DC;          
 @color-input-fore-active: #FFFFFF;
-@color-input-fore-placeholder: #C0C6CC; // Soft gray-blue placeholder
+@color-input-fore-placeholder: #B5BCC4; // Brighter for better visibility
 
-@color-border: #5E7E9833;             // Translucent blue-gray border (very subtle)
-@color-heading: #6F8AA6;              // Desaturated slate-blue for headings
-@color-error: #D45858;                // Softened red that’s readable on dark
-@color-ok: #6B8F6B;                   // Muted sage-olive (keeps balance, not teal)
-@color-ok-fore: #BFD9BF;              // Pale sage highlight (non-fluorescent)
-@color-selection-back: #7A94AD;       // Gentle steel-blue selection
-@color-selection-fore: #121317;       // Deep near-black for readable text
+
+@color-border: #5E7E9855;             // Increased opacity (33%) for definition
+@color-heading: #7A94AD;              // Brighter blue for better hierarchy
+@color-error: #E66B6B;                // Slightly brighter red for visibility
+@color-ok: #7BA17B;                   // Brighter sage for better contrast
+@color-ok-fore: #D1E8D1;              // Lighter pale sage
+@color-selection-back: #6B8AA8;       // Slightly desaturated for depth
+@color-selection-fore: #0F1216;       // Deeper black for contrast
+
 
 @font-family: "Inter", "Open Sans", "Segoe UI", "Helvetica Neue", Ubuntu, sans-serif;
+
 
 @size-border: 0.125rem;
 @size-border-inner: 0.0625rem;
@@ -37,8 +42,10 @@
 @size-text-large: 0.95rem;
 @size-text-large-height: 1.3rem;
 
+
 @indent-large: 0.75rem;
 @indent-small: 0.5rem;
+
 
 @time-fast: 160ms;
 @time-slow: 300ms;

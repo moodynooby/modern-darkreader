@@ -14,15 +14,14 @@ declare const __CHROMIUM_MV3__: boolean;
 
 export const DEFAULT_COLORS = {
     darkScheme: {
-        background: '#181a1b',
-        text: '#e8e6e3',
+        background: '#111318', // Darker with blue-gray tint for depth
+        text: '#E8E3DC', // Warm ivory for softer contrast
     },
     lightScheme: {
         background: '#dcdad7',
         text: '#181a1b',
     },
 };
-
 export const DEFAULT_THEME: Theme = {
     mode: 1,
     brightness: 100,
