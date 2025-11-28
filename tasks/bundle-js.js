@@ -87,6 +87,7 @@ async function bundleJS(/** @type {JSEntry} */entry, platform, debug, watch, log
     const mustRemoveEval = !test && (platform === PLATFORM.FIREFOX_MV2) && (entry.src === 'src/inject/index.ts');
 
     const cacheId = `${entry.src}-${platform}-${debug}-${watch}-${log}-${test}`;
+    const outDir = getDestDir({debug, platform});
 
     const bundle = await rollup.rollup({
         input: absolutePath(src),
@@ -125,6 +126,7 @@ async function bundleJS(/** @type {JSEntry} */entry, platform, debug, watch, log
                 sourceMap: debug ? true : false,
                 inlineSources: debug ? true : false,
                 noEmitOnError: watch ? false : true,
+                outDir,
                 paths: platform === PLATFORM.CHROMIUM_MV2_PLUS ? {
                     '@plus/*': ['./plus/*'],
                 } : {
@@ -150,7 +152,7 @@ async function bundleJS(/** @type {JSEntry} */entry, platform, debug, watch, log
     rollupCache[cacheId] = bundle.cache;
     entry.watchFiles = bundle.watchFiles;
     await bundle.write({
-        file: `${getDestDir({debug, platform})}/${dest}`,
+        file: `${outDir}/${dest}`,
         strict: true,
         format: 'iife',
         sourcemap: debug ? 'inline' : false,
