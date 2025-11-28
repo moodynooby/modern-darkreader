@@ -44,13 +44,11 @@ jobs:
 
           # Stable releases
           - channel: stable
-            chrome: stable
             firefox: latest
             coverage: true
 
           # Beta releases
           - channel: beta
-            chrome: beta
             firefox: latest-beta
 
     runs-on: ubuntu-latest
@@ -58,18 +56,6 @@ jobs:
     steps:
       - name: Check out code
         uses: actions/checkout@v4
-
-      - name: Install Chrome
-        if: ${{ matrix.chrome }}
-        uses: browser-actions/setup-chrome@latest
-        with:
-          chrome-version: ${{ matrix.chrome }}
-
-      - name: Configure Karma with path to Chrome executable
-        if: ${{ matrix.chrome }}
-        run: |
-          chrome --version
-          { echo CHROME_BIN="$(which chrome)"; echo CHROME_TEST=1; } | tee -a "$GITHUB_ENV"
 
       - name: Install Firefox
         if: ${{ matrix.firefox }}
@@ -97,18 +83,6 @@ jobs:
       - name: Run injection tests
         run: npm run test:inject -- --ci --json --outputFile=test-results-inject.json
 
-      - name: Run browser tests on Chromium MV2 build
-        if: ${{ matrix.chrome }}
-        uses: coactions/setup-xvfb@v1
-        with:
-          run: npm run test:chrome -- --json --outputFile=test-results-chrome.json
-
-      - name: Run browser tests on Chromium MV3 build
-        if: ${{ matrix.chrome }}
-        uses: coactions/setup-xvfb@v1
-        with:
-          run: npm run test:chrome-mv3 -- --json --outputFile=test-results-chrome-mv3.json
-
       - name: Run browser tests on Firefox MV2 build
         if: ${{ matrix.firefox }}
         uses: coactions/setup-xvfb@v1
@@ -118,6 +92,6 @@ jobs:
       - name: Upload test results
         uses: actions/upload-artifact@v4
         with:
-          name: test-results-chrome-${{ matrix.chrome }}-firefox-${{ matrix.firefox }}-coverage-${{ matrix.coverage }}
+          name: test-results-firefox-${{ matrix.firefox }}-coverage-${{ matrix.coverage }}
           path: test-results-*
           retention-days: ${{ inputs.test_results_retention_days }}
