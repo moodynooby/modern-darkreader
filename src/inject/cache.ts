@@ -1,4 +1,4 @@
-import type {ImageDetails} from './dynamic-theme/image';
+import type { ImageDetails } from './dynamic-theme/image';
 
 const STORAGE_KEY_WAS_ENABLED_FOR_HOST = '__darkreader__wasEnabledForHost';
 const STORAGE_KEY_IMAGE_DETAILS_LIST = '__darkreader__imageDetails_v2_list';

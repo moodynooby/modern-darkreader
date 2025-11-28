@@ -9,9 +9,9 @@ import rollupPluginTypescript from '@rollup/plugin-typescript';
 import rollupPluginIstanbul from 'rollup-plugin-istanbul';
 import typescript from 'typescript';
 
-import {absolutePath} from '../../tasks/paths.js';
+import { absolutePath } from '../../tasks/paths.js';
 
-import {createEchoServer} from './support/echo-server.js';
+import { createEchoServer } from './support/echo-server.js';
 
 /**
  * @param {Partial<LocalConfig>} config
@@ -30,7 +30,7 @@ export function configureKarma(config, env) {
         files: [
             'tests/inject/support/customize.ts',
             'tests/inject/support/polyfills.ts',
-            {pattern: 'tests/inject/**/*.tests.ts', watched: false},
+            { pattern: 'tests/inject/**/*.tests.ts', watched: false },
         ],
         plugins: [
             'karma-chrome-launcher',
@@ -49,6 +49,10 @@ export function configureKarma(config, env) {
                     typescript,
                     tsconfig: absolutePath('tests/inject/tsconfig.json'),
                     cacheDir: `${fs.realpathSync(os.tmpdir())}/darkreader_typescript_test_cache`,
+                    compilerOptions: {
+                        outDir: undefined,
+                        declarationDir: undefined,
+                    },
                 }),
                 rollupPluginReplace({
                     preventAssignment: true,
