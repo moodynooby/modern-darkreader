@@ -51,7 +51,7 @@ export function writeImageDetailsCache(url: string, imageDetails: ImageDetails):
     }
     imageDetailsCacheQueue.set(url, imageDetails);
     clearTimeout(imageCacheTimeout);
-    imageCacheTimeout = setTimeout(writeImageDetailsQueue, 1000);
+    imageCacheTimeout = setTimeout(writeImageDetailsQueue, 1000) as unknown as number;
 }
 
 export function readImageDetailsCache(targetMap: Map<string, ImageDetails>): void {
