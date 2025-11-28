@@ -51,7 +51,7 @@
     "accessibility",
     "eye-care"
   ],
-  "dependencies": {
+    "dependencies": {
     "malevic": "0.20.2"
   },
   "devDependencies": {
