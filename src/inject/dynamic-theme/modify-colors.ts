@@ -1,4 +1,3 @@
-import {extendThemeCacheKeys} from '@plus/utils/theme';
 import type {Theme} from '../../definitions';
 import {applyColorMatrix, createFilterMatrix} from '../../generators/utils/matrix';
 import {getRegisteredColor, registerColor} from '../../inject/dynamic-theme/palette';
@@ -41,7 +40,6 @@ export const themeCacheKeys: Array<keyof Theme> = [
     'lightSchemeBackgroundColor',
     'lightSchemeTextColor',
 ];
-extendThemeCacheKeys(themeCacheKeys);
 
 function getCacheId(rgb: RGBA, theme: Theme): string {
     let resultId = '';
