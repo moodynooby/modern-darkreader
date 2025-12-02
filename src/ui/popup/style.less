@@ -5,6 +5,10 @@
 @popup-content-height: 20rem;
 @popup-content-padding: 0.5rem;
 
+// Total dimensions including padding (for border-box)
+@popup-total-width: @popup-content-width + 2 * @popup-content-padding;
+@popup-total-height: @popup-content-height + 2 * @popup-content-padding;
+
 @import "./components/custom-settings-toggle/style";
 @import "./components/engine-switch/style";
 @import "./components/filter-settings/style";
@@ -16,14 +20,14 @@
 
 body {
   align-items: center;
-  box-sizing: content-box;
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  height: @popup-content-height;
+  min-height: @popup-total-height;
   margin: 0 auto;
   padding: @popup-content-padding;
   position: relative;
-  width: @popup-content-width;
+  width: @popup-total-width;
 }
 
 .header {
@@ -219,9 +223,10 @@ footer {
 // Make popup borders the same
 // across platforms and browser versions
 
-html:not(.mobile):not(.preview) body {
-  height: @popup-content-height + 4rem;
-}
+// Removed: height is now properly set in body with border-box
+// html:not(.mobile):not(.preview) body {
+//   height: @popup-content-height + 4rem;
+// }
 
 .overlay {
   height: calc(100% - 4px);
