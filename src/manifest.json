@@ -1,16 +1,15 @@
- {
-
-  "manifest_version": 2,
-  "name": "Lean Dark+",
-  "version": "2",
-  "author": " Manas Doshi",
-  "description": "__MSG_extension_description__",
-  "default_locale": "en",
-  "browser_action": {
-    "default_title": "Lean Dark+",
-    "default_icon": {
-      "48": "icons/dr_48.png",
-      "16": "icons/dr_16.png"
+{
+    "manifest_version": 2,
+    "name": "Lean Dark+",
+    "version": "2",
+    "author": " Manas Doshi",
+    "description": "__MSG_extension_description__",
+    "default_locale": "en",
+    "browser_action": {
+        "default_title": "Lean Dark+",
+        "default_icon": {
+            "48": "icons/dr_48.png",
+            "16": "icons/dr_16.png"
         },
         "default_popup": "ui/popup/index.html"
     },
@@ -42,10 +41,8 @@
         "storage",
         "tabs",
         "<all_urls>"
-
     ],
-    "optional_permissions": [
-    ],
+    "optional_permissions": [],
     "commands": {
         "toggle": {
             "suggested_key": {

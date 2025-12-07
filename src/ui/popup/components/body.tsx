@@ -1,17 +1,17 @@
-import {m} from 'malevic';
-import {getContext} from 'malevic/dom';
-import {withForms} from 'malevic/forms';
-import {withState, useState} from 'malevic/state';
+import { m } from 'malevic';
+import { getContext } from 'malevic/dom';
+import { withForms } from 'malevic/forms';
+import { withState, useState } from 'malevic/state';
 
-import type {ExtensionData, ExtensionActions} from '../../../definitions';
-import {getLocalMessage} from '../../../utils/locales';
-import {isMobile} from '../../../utils/platform';
-import {TabPanel} from '../../controls';
-import {compose} from '../../utils';
+import type { ExtensionData, ExtensionActions } from '../../../definitions';
+import { getLocalMessage } from '../../../utils/locales';
+import { isMobile } from '../../../utils/platform';
+import { TabPanel } from '../../controls';
+import { compose } from '../../utils';
 import NewBody from '../body';
 
 import FilterSettings from './filter-settings';
-import {Header} from './header';
+import { Header } from './header';
 import Loader from './loader';
 import MoreSettings from './more-settings';
 import SiteListSettings from './site-list-settings';
@@ -19,26 +19,26 @@ import SiteListSettings from './site-list-settings';
 declare const __THUNDERBIRD__: boolean;
 
 interface BodyProps {
-  data: ExtensionData;
-  actions: ExtensionActions;
+    data: ExtensionData;
+    actions: ExtensionActions;
 }
 
 interface BodyState {
-  activeTab: string;
-  mobileLinksOpen: boolean;
-  didMobileLinksSlideIn: boolean;
-  moreSiteSettingsOpen: boolean;
-  moreToggleSettingsOpen: boolean;
-  newToggleMenusHighlightHidden: boolean;
+    activeTab: string;
+    mobileLinksOpen: boolean;
+    didMobileLinksSlideIn: boolean;
+    moreSiteSettingsOpen: boolean;
+    moreToggleSettingsOpen: boolean;
+    newToggleMenusHighlightHidden: boolean;
 }
 
 function Body(
     props: BodyProps & { fonts: string[] } & {
-    installation: { date: number; version: string };
-  }
+        installation: { date: number; version: string };
+    }
 ) {
     const context = getContext();
-    const {state, setState} = useState<BodyState>({
+    const { state, setState } = useState<BodyState>({
         activeTab: 'Filter',
         mobileLinksOpen: false,
         didMobileLinksSlideIn: false,
@@ -62,8 +62,8 @@ function Body(
     context.onRender(() => {
         if (
             props.data.uiHighlights.includes('mobile-links') &&
-      !state.mobileLinksOpen &&
-      !state.didMobileLinksSlideIn
+            !state.mobileLinksOpen &&
+            !state.didMobileLinksSlideIn
         ) {
             setTimeout(toggleMobileLinks, 750);
         }
@@ -73,11 +73,11 @@ function Body(
         setState({
             mobileLinksOpen: !state.mobileLinksOpen,
             didMobileLinksSlideIn:
-        state.didMobileLinksSlideIn || !state.mobileLinksOpen,
+                state.didMobileLinksSlideIn || !state.mobileLinksOpen,
         });
         if (
             state.mobileLinksOpen &&
-      props.data.uiHighlights.includes('mobile-links')
+            props.data.uiHighlights.includes('mobile-links')
         ) {
             disableMobileLinksSlideIn();
         }
@@ -123,7 +123,7 @@ function Body(
     );
 
     return (
-        <body class={{'ext-disabled': !props.data.isEnabled}}>
+        <body class={{ 'ext-disabled': !props.data.isEnabled }}>
             <Loader complete />
 
             <Header
@@ -135,7 +135,7 @@ function Body(
 
             <TabPanel
                 activeTab={state.activeTab}
-                onSwitchTab={(tab) => setState({activeTab: tab})}
+                onSwitchTab={(tab) => setState({ activeTab: tab })}
                 tabs={
                     __THUNDERBIRD__
                         ? {
