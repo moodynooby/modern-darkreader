@@ -1,5 +1,6 @@
 import {isNonPersistent} from '../utils/platform';
 
+declare const __THUNDERBIRD__: boolean;
 
 interface IconState {
     badgeText: string;
@@ -65,8 +66,8 @@ export default class IconManager {
     }
 
     static setIcon({isActive = this.iconState.active, colorScheme = 'dark', tabId}: IconOptions): void {
-        if (!chrome.browserAction.setIcon) {
-            // Fix for Firefox Android .
+        if (__THUNDERBIRD__ || !chrome.browserAction.setIcon) {
+            // Fix for Firefox Android and Thunderbird.
             return;
         }
         // Temporary disable per-site icons

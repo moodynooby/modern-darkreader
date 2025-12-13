@@ -48,6 +48,11 @@ const jsEntries = [
         platform: PLATFORM.CHROMIUM_MV3,
     },
     {
+        src: 'src/ui/devtools/index.tsx',
+        dest: 'ui/devtools/index.js',
+        reloadType: reload.UI,
+    },
+    {
         src: 'src/ui/options/index.tsx',
         dest: 'ui/options/index.js',
         reloadType: reload.UI,
@@ -55,6 +60,11 @@ const jsEntries = [
     {
         src: 'src/ui/popup/index.tsx',
         dest: 'ui/popup/index.js',
+        reloadType: reload.UI,
+    },
+    {
+        src: 'src/ui/stylesheet-editor/index.tsx',
+        dest: 'ui/stylesheet-editor/index.js',
         reloadType: reload.UI,
     },
 ];
@@ -68,6 +78,15 @@ async function bundleJS(/** @type {JSEntry} */entry, platform, debug, watch, log
     let replace = {};
     switch (platform) {
         case PLATFORM.FIREFOX_MV2:
+        case PLATFORM.THUNDERBIRD:
+            if (entry.src === 'src/ui/popup/index.tsx') {
+                break;
+            }
+            replace = {
+                'chrome.fontSettings.getFontList': `chrome['font' + 'Settings']['get' + 'Font' + 'List']`,
+                'chrome.fontSettings': `chrome['font' + 'Settings']`,
+            };
+            break;
         case PLATFORM.CHROMIUM_MV3:
             replace = {
                 'chrome.browserAction.setIcon': 'chrome.action.setIcon',
@@ -135,6 +154,8 @@ async function bundleJS(/** @type {JSEntry} */entry, platform, debug, watch, log
                 __CHROMIUM_MV2__: platform === PLATFORM.CHROMIUM_MV2 || platform === PLATFORM.CHROMIUM_MV2_PLUS,
                 __CHROMIUM_MV3__: platform === PLATFORM.CHROMIUM_MV3,
                 __FIREFOX_MV2__: platform === PLATFORM.FIREFOX_MV2,
+                __THUNDERBIRD__: platform === PLATFORM.THUNDERBIRD,
+                __PLUS__: platform === PLATFORM.CHROMIUM_MV2_PLUS,
                 __PORT__: watch ? String(PORT) : '-1',
                 __TEST__: test,
                 __WATCH__: watch,

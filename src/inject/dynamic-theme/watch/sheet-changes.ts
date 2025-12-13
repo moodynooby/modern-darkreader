@@ -1,3 +1,4 @@
+declare const __THUNDERBIRD__: boolean;
 
 interface SheetWatcher {
     start(): void;
@@ -19,7 +20,7 @@ export function createSheetWatcher(
         watchForSheetChangesUsingProxy();
         // Sometimes sheet can be null in Firefox and Safari
         // So need to watch for it using rAF
-        if (!(canUseSheetProxy && element.sheet)) {
+        if (!__THUNDERBIRD__ && !(canUseSheetProxy && element.sheet)) {
             rafSheetWatcher = createRAFSheetWatcher(element, safeGetSheetRules, callback, isCancelled);
             rafSheetWatcher.start();
         }

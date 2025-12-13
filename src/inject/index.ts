@@ -20,6 +20,7 @@ let darkReaderDynamicThemeStateForTesting: 'loading' | 'ready' = 'loading';
 
 declare const __CHROMIUM_MV2__: boolean;
 declare const __CHROMIUM_MV3__: boolean;
+declare const __THUNDERBIRD__: boolean;
 declare const __FIREFOX_MV2__: boolean;
 
 // Identifier for this particular script instance. It is used as an alternative to chrome.runtime.MessageSender.documentId
@@ -202,9 +203,13 @@ function onDarkThemeDetected() {
     sendMessage({type: MessageTypeCStoBG.DARK_THEME_DETECTED});
 }
 
-addEventListener('pagehide', onPageHide, {passive: true});
-addEventListener('freeze', onFreeze, {passive: true});
-addEventListener('resume', onResume, {passive: true});
+// Thunderbird does not have "tabs", and emails aren't 'frozen' or 'cached'.
+// And will currently error: `Promise rejected after context unloaded: Actor 'Conduits' destroyed before query 'RuntimeMessage' was resolved`
+if (!__THUNDERBIRD__) {
+    addEventListener('pagehide', onPageHide, {passive: true});
+    addEventListener('freeze', onFreeze, {passive: true});
+    addEventListener('resume', onResume, {passive: true});
+}
 
 
 if (__TEST__) {

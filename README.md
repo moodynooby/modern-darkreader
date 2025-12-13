@@ -1,33 +1,37 @@
 # Lean Dark+
 
-**Lean Dark+** is a minimalist dark mode extension engineered for fast, low‑distraction browsing with **reduced eyestrain** and **lightweight performance** at its core.
-[Download fromm addons](https://addons.mozilla.org/en-US/firefox/addon/len-dek/)
+## Description
 
-## What’s new
+Lean Dark+ is a minimalist dark mode extension engineered for fast, low-distraction browsing with reduced eyestrain and lightweight performance at its core. It delivers clean, accurate theming with near-zero clutter for focused readers, developers, and night-owls.
 
-- New focus on a lean, essentials‑only UI: fewer toggles, clearer defaults, and instant on/off control for a frictionless experience.
-- Performance-first darkening engine that preserves natural hues while minimizing CPU and memory impact during long sessions.
-- Purposeful customization: quick sliders for brightness, contrast, and warmth—nothing more, nothing less.
+## Links
 
-## Why it matters
+- [Download from Mozilla Add-ons](https://addons.mozilla.org/en-US/firefox/addon/len-dek/)
+- [Help and Contribution Guide](https://github.com/darkreader/darkreader)
 
-- Less visual noise means sharper focus and lower cognitive load in low‑light environments.
-- Faster, lighter theming improves responsiveness across tabs and keeps battery drain in check on laptops.
-- Clear defaults reduce setup time; most users get an ideal dark mode without digging into settings.
+## Features
 
-## Key features
+- Smart dark mode that respects content and avoids harsh inversion.
+- Instant on/off toggle and per-site controls.
+- Simple sliders for brightness, contrast, and sepia/warmth.
+- Lightweight and performance-focused engine.
+- Open and developer-friendly build process.
 
-- Smart dark mode that respects content, avoids harsh inversion, and favors readable contrast.
-- Instant toggle, per‑site apply/skip, and whitelist/blacklist controls for effortless behavior tuning.
-- Compact settings with brightness, contrast, and sepia/warmth controls for comfort over long reads.
-- Open and developer‑friendly build flow with standard tooling and simple configuration flags.
+## Demo / Screenshots
 
-## Positioning statement
+*(Add screenshots or GIFs of the extension in action here.)*
 
-Lean Dark+ is the minimalist dark mode extension that delivers clean, accurate theming with near‑zero clutter for focused readers, developers, and night‑owls—unlike heavy, option‑dense alternatives that slow the browsing experience.
+## Setup
 
-## Call to action
+1.  Clone the repository: `git clone https://github.com/moodynooby/modern-darkreader.git`
+2.  Install dependencies: `npm install`
+3.  Build the extension: `npm run build`
+4.  Load the `build/debug` directory into your browser as an unpacked extension.
 
-Install Lean Dark+ to get a calmer, faster web—dark where it should be, simple where it matters.
+## Release Notes
 
-Check [help](https://github.com/darkreader/darkreader)
+For a detailed list of changes, please refer to the [CHANGELOG.md](CHANGELOG.md) file.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

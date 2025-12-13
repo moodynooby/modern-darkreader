@@ -107,12 +107,14 @@ function getParams(args) {
         '--firefox': PLATFORM.FIREFOX_MV2,
         '--firefox-mv2': PLATFORM.FIREFOX_MV2,
         '--firefox-mv3': PLATFORM.FIREFOX_MV3,
+        '--thunderbird': PLATFORM.THUNDERBIRD,
     };
     const platforms = {
         [PLATFORM.CHROMIUM_MV2]: false,
         [PLATFORM.CHROMIUM_MV2_PLUS]: false,
         [PLATFORM.CHROMIUM_MV3]: false,
         [PLATFORM.FIREFOX_MV2]: false,
+        [PLATFORM.THUNDERBIRD]: false,
     };
     let allPlatforms = true;
     for (const arg of args) {
