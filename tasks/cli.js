@@ -37,7 +37,7 @@ async function executeChildProcess(args) {
 
 function printHelp() {
     console.log([
-        'Dark Reader build utility',
+        'LD build utility',
         '',
         'Usage: build [build parameters]',
         '',
