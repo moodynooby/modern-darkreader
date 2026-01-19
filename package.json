@@ -11,8 +11,7 @@
     "debug": "node --max-old-space-size=3072 tasks/cli.js build --debug",
     "debug:watch": "node --max-old-space-size=3072 tasks/cli.js build --debug --watch --chrome --firefox",
     "debug:watch:mv3": "node --max-old-space-size=3072 tasks/cli.js build --debug --watch --chrome-mv3",
-        "debug:watch:firefox": "node --max-old-space-size=3072 tasks/cli.js build --debug --watch  --firefox",
-
+    "debug:watch:firefox": "node --max-old-space-size=3072 tasks/cli.js build --debug --watch  --firefox",
     "dependencies:upgrade": "node tasks/dependencies.js",
     "lint": "eslint -- src/**/*.ts src/**/*.tsx tasks/**/*.js eslint.config.js index.d.ts",
     "fix": "npx eslint --fix -- src/**/*.ts src/**/*.tsx tasks/**/*.js eslint.config.js index.d.ts",
