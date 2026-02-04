@@ -187,13 +187,14 @@ export interface Shortcuts {
 }
 
 export interface DynamicThemeFix {
-  url: string[];
-  invert: string[];
-  css: string;
-  ignoreInlineStyle: string[];
-  ignoreImageAnalysis: string[];
-  disableStyleSheetsProxy: boolean;
-  disableCustomElementRegistryProxy: boolean;
+    url: string[];
+    invert: string[];
+    css: string;
+    ignoreInlineStyle: string[];
+    ignoreImageAnalysis: string[];
+    ignoreCSSUrl: string[];
+    disableStyleSheetsProxy: boolean;
+    disableCustomElementRegistryProxy: boolean;
 }
 
 export interface InversionFix {

@@ -47,6 +47,13 @@ function getPriority(ruleStyle: CSSStyleDeclaration, property: string) {
     return Boolean(ruleStyle && ruleStyle.getPropertyPriority(property));
 }
 
+const bgPropsToCopy = [
+    'background-clip',
+    'background-position',
+    'background-repeat',
+    'background-size',
+];
+
 export function getModifiableCSSDeclaration(
     property: string,
     value: string,
@@ -89,7 +96,7 @@ export function getModifiableCSSDeclaration(
         modifier = getBgImageModifier(value, rule, ignoreImageSelectors, isCancelled!);
     } else if (property.includes('shadow')) {
         modifier = getShadowModifier(value);
-    } else if (property === 'background-clip' && value !== 'initial') {
+    } else if (bgPropsToCopy.includes(property) && value !== 'initial') {
         modifier = value;
     }
 
