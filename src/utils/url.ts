@@ -303,7 +303,7 @@ export function isPDF(url: string): boolean {
         const {hostname, pathname} = new URL(url);
         if (pathname.includes('.pdf')) {
             if (
-                ((hostname.endsWith('.wikipedia.org') || hostname.endsWith('.wikipedia.org')) && pathname.match(wikiPDFPathRegexp)) ||
+                ((hostname.endsWith('.wikimedia.org') || hostname.endsWith('.wikipedia.org')) && pathname.match(wikiPDFPathRegexp)) ||
                 (hostname.endsWith('.dropbox.com') && pathname.startsWith('/s/') && (pathname.endsWith('.pdf') || pathname.endsWith('.PDF')))
             ) {
                 return false;
@@ -326,6 +326,20 @@ export function isPDF(url: string): boolean {
     return false;
 }
 
+const indexedSiteLists = new WeakMap<string[], URLTemplateIndex>();
+
+function isInListOptimized(url: string, list: string[]) {
+    if (!url || list.length === 0) {
+        return false;
+    }
+    let index = indexedSiteLists.get(list);
+    if (!index) {
+        index = indexURLTemplateList(list);
+        indexedSiteLists.set(list, index);
+    }
+    return isURLInIndexedList(url, index);
+}
+
 export function isURLEnabled(url: string, userSettings: UserSettings, {isProtected, isInDarkList, isDarkThemeDetected}: Partial<TabInfo>, isAllowedFileSchemeAccess = true): boolean {
     if (isLocalFile(url) && !isAllowedFileSchemeAccess) {
         return false;
@@ -341,8 +355,8 @@ export function isURLEnabled(url: string, userSettings: UserSettings, {isProtect
     if (isPDF(url)) {
         return userSettings.enableForPDF;
     }
-    const isURLInDisabledList = isURLInList(url, userSettings.disabledFor);
-    const isURLInEnabledList = isURLInList(url, userSettings.enabledFor);
+    const isURLInDisabledList = isInListOptimized(url, userSettings.disabledFor);
+    const isURLInEnabledList = isInListOptimized(url, userSettings.enabledFor);
 
     if (!userSettings.enabledByDefault) {
         return isURLInEnabledList;
@@ -425,13 +439,16 @@ export function indexURLTemplateList<T = boolean>(list: string[], assign: ((patt
                 nodes.set(p, node);
             }
         });
-        const lastHostNode: URLTrieNode = {
-            key: '',
-            hostNodes: new Map(),
-            pathNodes: new Map(),
-            data: null,
-        };
-        node.hostNodes.set('', lastHostNode);
+        let lastHostNode = node.hostNodes.get('');
+        if (!lastHostNode) {
+            lastHostNode = {
+                key: '',
+                hostNodes: new Map(),
+                pathNodes: new Map(),
+                data: null,
+            };
+            node.hostNodes.set('', lastHostNode);
+        }
         node = lastHostNode;
 
         if (pattern.pathParts.length === 0) {
@@ -453,13 +470,16 @@ export function indexURLTemplateList<T = boolean>(list: string[], assign: ((patt
                 nodes.set(p, node);
             }
         });
-        const lastPathNode: URLTrieNode = {
-            key: '',
-            hostNodes: new Map(),
-            pathNodes: new Map(),
-            data: null,
-        };
-        node.pathNodes.set('', lastPathNode);
+        let lastPathNode = node.pathNodes.get('');
+        if (!lastPathNode) {
+            lastPathNode = {
+                key: '',
+                hostNodes: new Map(),
+                pathNodes: new Map(),
+                data: null,
+            };
+            node.pathNodes.set('', lastPathNode);
+        }
         lastPathNode.data = data;
     });
     return trie;
@@ -550,10 +570,8 @@ export function getURLMatchesFromIndexedList<T>(url: string, trie: URLTrie<T>, b
         const noMorePathParts = index === u.pathParts.length;
         const value = noMorePathParts ? '' : u.pathParts[index];
 
-        if (finalPathNode && (noMorePathParts || node.key === '*' || index === u.pathParts.length - 1)) {
-            if (finalPathNode.data) {
-                push(finalPathNode.data);
-            }
+        if (finalPathNode && finalPathNode.data) {
+            push(finalPathNode.data);
         }
 
         if (noMorePathParts) {
