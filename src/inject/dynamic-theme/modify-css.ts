@@ -288,11 +288,11 @@ function getColorModifier(prop: string, value: string, rule: CSSStyleRule): stri
     }
 
     if (prop.includes('background')) {
+        const maskImageValue = rule.style.maskImage ?? rule.style.mask;
         if (
-            (rule.style.webkitMaskImage && rule.style.webkitMaskImage !== 'none') ||
-            (rule.style.webkitMask && !rule.style.webkitMask.startsWith('none')) ||
-            (rule.style.mask && rule.style.mask !== 'none') ||
-            (rule.style.getPropertyValue('mask-image') && rule.style.getPropertyValue('mask-image') !== 'none')
+            maskImageValue &&
+            !maskImageValue.startsWith('none') &&
+            !maskImageValue.startsWith('linear-gradient')
         ) {
             return (theme) => modifyForegroundColor(rgb, theme);
         }
