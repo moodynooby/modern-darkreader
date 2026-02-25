@@ -98,7 +98,6 @@ export default class TabManager {
 
                     if (isPanel(sender)) {
                         // NOTE: Vivaldi and Opera can show a page in a side panel,
-                        // but it is not possible to handle messaging correctly (no tab ID, frame ID).
                         if (isFirefox) {
                             if (sender && sender.tab && typeof sender.tab.id === 'number') {
                                 chrome.tabs.sendMessage<MessageBGtoCS>(sender.tab.id,
@@ -122,8 +121,6 @@ export default class TabManager {
                     const tabId = sender.tab!.id!;
                     const scriptId = message.scriptId!;
                     const topFrameHasDarkTheme = isTopFrame ? false : TabManager.tabs[tabId]?.[0]?.darkThemeDetected;
-                    // Chromium 106+ may prerender frames resulting in top-level frames with chrome.runtime.MessageSender.tab.url
-                    // set to chrome://newtab/ and positive chrome.runtime.MessageSender.frameId
                     const tabURL = ((__CHROMIUM_MV2__ || __CHROMIUM_MV3__) && isTopFrame) ? url : sender.tab!.url!;
                     const documentId: string | null = __CHROMIUM_MV3__ ? sender.documentId! : (sender.documentId || null);
 
@@ -205,17 +202,12 @@ export default class TabManager {
                 }
 
                 case MessageTypeCStoBG.FETCH: {
-                    // Using custom response due to Chrome and Firefox incompatibility
-                    // Sometimes fetch error behaves like synchronous and sends `undefined`
                     const id = message.id;
-                    // We do not need to use scriptId here since every request has a unique id already
                     const sendResponse = (response: Partial<MessageBGtoCS>) => {
                         TabManager.sendDocumentMessage(sender.tab!.id!, sender.documentId!, {type: MessageTypeBGtoCS.FETCH_RESPONSE, id, ...response}, sender.frameId!);
                     };
 
                     if (__THUNDERBIRD__) {
-                        // In thunderbird some CSS is loaded on a chrome:// URL.
-                        // Thunderbird restricted Add-ons to load those URL's.
                         if ((message.data.url as string).startsWith('chrome://')) {
                             sendResponse({data: null});
                             return;
@@ -236,7 +228,6 @@ export default class TabManager {
                 }
 
                 case MessageTypeUItoBG.COLOR_SCHEME_CHANGE:
-                    // fallthrough
                 case MessageTypeCStoBG.COLOR_SCHEME_CHANGE:
                     TabManager.onColorSchemeMessage(message as MessageCStoBG, sender);
                     break;
@@ -266,22 +257,10 @@ export default class TabManager {
         }
 
         if (__CHROMIUM_MV3__) {
-            // On MV3, Chromium has a bug which prevents sending messages to pre-rendered frames without specifying frameId
-            // Furthermore, if we send a message addressed to a temporary frameId after the document exits prerender state,
-            // the message will also fail to be delivered.
-            //
-            // To work around this:
-            //  1. Attempt to send the message by documentId. If this fails, this means the document is in prerender state.
-            //  2. Attempt to send the message by documentId and temporary frameId. If this fails, this means the document
-            //     either already exited pre-rendered state or was discarded.
-            //  3. Attempt to send the message by documentId (omitting the permanent frameId which is 0).If this fails, this
-            //     means the document was already discarded.
-            //
-            // More info: https://crbug.com/1455817
 
             chrome.tabs.sendMessage<MessageBGtoCS>(tabId, message, {documentId}).catch(() =>
                 chrome.tabs.sendMessage<MessageBGtoCS>(tabId, message, {frameId, documentId}).catch(() =>
-                    chrome.tabs.sendMessage<MessageBGtoCS>(tabId, message, {documentId}).catch(() => { /* noop */ })
+                    chrome.tabs.sendMessage<MessageBGtoCS>(tabId, message, {documentId}).catch(() => {  })
                 )
             );
             return;
@@ -296,10 +275,7 @@ export default class TabManager {
     private static onColorSchemeMessage(message: MessageCStoBG, sender: chrome.runtime.MessageSender) {
         ASSERT('TabManager.onColorSchemeMessage is set', () => Boolean(TabManager.onColorSchemeChange));
 
-        // We honor only messages which come from tab's top frame
-        // because sub-frames color scheme can be overridden by style with prefers-color-scheme
         // TODO(MV3): instead of dropping these messages, consider making a query to an authoritative source
-        // like offscreen document
         if (sender && sender.frameId === 0) {
             TabManager.onColorSchemeChange(message.data.isDark);
         }
@@ -332,8 +308,6 @@ export default class TabManager {
         }
 
         if (TabManager.tabs[tabId] && TabManager.tabs[tabId][frameId]) {
-            // We need to use delete here because Object.entries()
-            // in sendMessage() would enumerate undefined as well.
             delete TabManager.tabs[tabId][frameId];
         }
 
@@ -392,10 +366,6 @@ export default class TabManager {
                 }
             }
         }
-        // It can happen in cases whereby the tab.url is empty.
-        // Luckily this only and will only happen on `about:blank`-like pages.
-        // Due to this we can safely use `about:blank` as fallback value.
-        // In some extraordinary circumstances tab may be undefined.
         return tab && tab.url || 'about:blank';
     }
 
@@ -432,12 +402,6 @@ export default class TabManager {
         });
     }
 
-    // sendMessage will send a tab messages to all active tabs and their frames.
-    // If onlyUpdateActiveTab is specified, it will only send a new message to any
-    // tab that matches the active tab's hostname. This is to ensure that when a user
-    // has multiple tabs of the same website, every tab will receive the new message
-    // and not just that tab as Dark Reader currently doesn't have per-tab operations,
-    // this should be the expected behavior.
     static async sendMessage(onlyUpdateActiveTab = false): Promise<void> {
         TabManager.timestamp++;
 
@@ -453,7 +417,6 @@ export default class TabManager {
                         const frameId = Number(id);
                         const tabURL = await TabManager.getTabURL(tab);
 
-                        // Check if hostname are equal when we only want to update active tab.
                         if (onlyUpdateActiveTab && getURLHostOrProtocol(tabURL) !== activeTabHostname) {
                             return;
                         }

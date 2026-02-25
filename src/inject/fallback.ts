@@ -17,8 +17,6 @@ if (
         '    opacity: 1 !important;',
         '    transition: none !important;',
         '}',
-        // MS Learn High Contrast issue
-        // https://github.com/darkreader/darkreader/issues/3618
         'div[style*="background-color: rgb(135, 135, 135)"] {',
         '    background-color: #878787 !important;',
         '}',
@@ -49,8 +47,6 @@ if (
 declare const __FIREFOX_MV2__: boolean;
 
 if (__FIREFOX_MV2__ && (location.host === 'teams.live.com' || location.host === 'teams.microsoft.com')) {
-    // Microsoft Teams calls sheet.cssRules on extension styles and that
-    // causes "Not allowed to access cross-origin stylesheet" in Firefox
     (() => {
         const descriptor = Object.getOwnPropertyDescriptor(CSSStyleSheet.prototype, 'cssRules')!;
         Object.defineProperty(CSSStyleSheet.prototype, 'cssRules', {

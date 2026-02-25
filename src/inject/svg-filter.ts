@@ -10,7 +10,6 @@ export function createOrUpdateSVGFilter(svgMatrix: string, svgReverseMatrix: str
                 filter.id = id;
                 filter.style.colorInterpolationFilters = 'sRGB';
 
-                // Fix displaying dynamic content https://bugs.chromium.org/p/chromium/issues/detail?id=647437
                 filter.setAttribute('x', '0');
                 filter.setAttribute('y', '0');
                 filter.setAttribute('width', '99999');
@@ -40,7 +39,6 @@ export function createOrUpdateSVGFilter(svgMatrix: string, svgReverseMatrix: str
             if (existingMatrix.getAttribute('values') !== svgMatrix) {
                 existingMatrix.setAttribute('values', svgMatrix);
 
-                // Fix not triggering repaint
                 const style = document.getElementById('dark-reader-style')!;
                 const css = style.textContent;
                 style.textContent = '';

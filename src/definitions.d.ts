@@ -244,5 +244,4 @@ export interface StaticTheme {
   noCommon?: boolean;
 }
 
-// These values need to match those in Manifest
 export type Command = 'toggle' | 'addSite' | 'switchEngine';

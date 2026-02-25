@@ -31,7 +31,6 @@ export function parseCSS(cssText: string): ParsedCSS {
 
     const rules: ParsedCSS = [];
 
-    // Find {...} ranges excluding inside of "...", [...] etc.
     const excludeRanges = getTokenExclusionRanges(cssText);
     const bracketRanges = getAllOpenCloseRanges(cssText, '{', '}', excludeRanges);
 

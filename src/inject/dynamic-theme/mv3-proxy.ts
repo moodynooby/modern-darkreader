@@ -45,7 +45,6 @@ function doneReceiver() {
 function dedicatedPath() {
     logInfo(`MV3 proxy injector: ${registeredScriptPath ? 'registered' : 'dedicated'} path setup...`);
     // TODO: use EventListenerOptions class once it is updated
-    // Note: make sure capture is not set
     const listenerOptions: any = {
         passive: true,
         once: true,

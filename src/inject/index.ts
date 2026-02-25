@@ -23,7 +23,6 @@ declare const __CHROMIUM_MV3__: boolean;
 declare const __THUNDERBIRD__: boolean;
 declare const __FIREFOX_MV2__: boolean;
 
-// Identifier for this particular script instance. It is used as an alternative to chrome.runtime.MessageSender.documentId
 const scriptId = generateUID();
 
 function cleanup() {
@@ -45,7 +44,6 @@ function sendMessage(message: MessageCStoBG | MessageCStoUI): true | undefined {
         return;
     }
     const responseHandler = (response: MessageBGtoCS | 'unsupportedSender' | undefined) => {
-        // Vivaldi bug workaround. See TabManager for details.
         if (response === 'unsupportedSender' || response?.type === MessageTypeBGtoCS.UNSUPPORTED_SENDER) {
             removeStyle();
             removeSVGFilter();
@@ -62,16 +60,6 @@ function sendMessage(message: MessageCStoBG | MessageCStoUI): true | undefined {
             chrome.runtime.sendMessage<MessageCStoBG | MessageCStoUI, 'unsupportedSender' | undefined>(message, responseHandler);
         }
     } catch (error) {
-        /*
-         * We get here if Background context is unreachable which occurs when:
-         *  - extension was disabled
-         *  - extension was uninstalled
-         *  - extension was updated and this is the old instance of content script
-         *
-         * Any async operations can be ignored here, but sync ones should run to completion.
-         *
-         * Regular message passing errors are returned via rejected promise or runtime.lastError.
-         */
         if (error.message === 'Extension context invalidated.') {
             console.log('Dark Reader: instance of old CS detected, cleaning up.');
             cleanup();
@@ -203,8 +191,6 @@ function onDarkThemeDetected() {
     sendMessage({type: MessageTypeCStoBG.DARK_THEME_DETECTED});
 }
 
-// Thunderbird does not have "tabs", and emails aren't 'frozen' or 'cached'.
-// And will currently error: `Promise rejected after context unloaded: Actor 'Conduits' destroyed before query 'RuntimeMessage' was resolved`
 if (!__THUNDERBIRD__) {
     addEventListener('pagehide', onPageHide, {passive: true});
     addEventListener('freeze', onFreeze, {passive: true});
@@ -246,8 +232,6 @@ if (__TEST__) {
             }));
         }, {passive: true});
 
-        // Wait for DOM to be complete
-        // Note that here we wait only for DOM parsing and not for sub-resource load
         await awaitDOMContentLoaded();
         await awaitDarkReaderReady();
         socket.send(JSON.stringify({
@@ -317,8 +301,6 @@ if (__TEST__) {
                     break;
                 }
                 case 'firefox-expectPageStyles': {
-                    // Styles may not have been applied to the document yet,
-                    // so we check once immediately and then on an interval.
                     function checkPageStylesNow() {
                         const errors = expectPageStyles(data);
                         if (errors.length === 0) {

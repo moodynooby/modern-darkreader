@@ -122,8 +122,6 @@ export function getModifiedUserAgentStyle(theme: Theme, isIFrame: boolean, style
         lines.push(`    background-color: ${modifyBackgroundColor({r: 255, g: 255, b: 255}, theme)} !important;`);
         lines.push('}');
     }
-    // color-scheme can change the background of an iframe
-    // that is supposed to be transparent
     if ((__CHROMIUM_MV3__ || isCSSColorSchemePropSupported) && theme.mode === 1) {
         lines.push('html {');
         lines.push(`    color-scheme: dark !important;`);
@@ -240,8 +238,6 @@ function defaultFallbackFactory(theme: Theme, {strict}: {strict: boolean}): stri
     lines.push(`    border-color: ${modifyBorderColor({r: 64, g: 64, b: 64}, theme)} !important;`);
     lines.push(`    color: ${modifyForegroundColor({r: 0, g: 0, b: 0}, theme)} !important;`);
     lines.push('}');
-    // MS Learn High Contrast issue
-    // https://github.com/darkreader/darkreader/issues/3618
     lines.push(`div[style*="background-color: rgb(135, 135, 135)"] {`);
     lines.push(`    background-color: #878787 !important;`);
     lines.push('}');
@@ -576,7 +572,6 @@ export function getBgImageModifier(
             const matchEnd = matchStart + match.length + offset;
             matchIndex = matchEnd;
 
-            // Make sure we still push all the unrelated content between gradients and URLs.
             if (prefixStart !== matchStart) {
                 if (prevHasComma) {
                     modifiers.push(() => {
@@ -610,7 +605,6 @@ export function getBgImageModifier(
                     return asyncResults.filter(Boolean).join('');
                 });
             }
-            // Strip `, initial` suffix. This is some weird computed value by the browser
             const combinedResult = results.join('');
             if (combinedResult.endsWith(', initial')) {
                 return combinedResult.slice(0, -9);

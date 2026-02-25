@@ -1,5 +1,4 @@
 import {m} from 'malevic';
-import {getContext} from 'malevic/dom';
 import {withForms} from 'malevic/forms';
 import {withState, useState} from 'malevic/state';
 
@@ -25,11 +24,8 @@ interface BodyProps {
 
 interface BodyState {
   activeTab: string;
-  mobileLinksOpen: boolean;
-  didMobileLinksSlideIn: boolean;
   moreSiteSettingsOpen: boolean;
   moreToggleSettingsOpen: boolean;
-  newToggleMenusHighlightHidden: boolean;
 }
 
 function Body(
@@ -37,14 +33,10 @@ function Body(
     installation: { date: number; version: string };
   }
 ) {
-    const context = getContext();
     const {state, setState} = useState<BodyState>({
         activeTab: 'Filter',
-        mobileLinksOpen: false,
-        didMobileLinksSlideIn: false,
         moreSiteSettingsOpen: false,
         moreToggleSettingsOpen: false,
-        newToggleMenusHighlightHidden: false,
     });
 
     if (!props.data.isReady) {
@@ -59,41 +51,10 @@ function Body(
         return <NewBody {...props} fonts={props.fonts} />;
     }
 
-    context.onRender(() => {
-        if (
-            props.data.uiHighlights.includes('mobile-links') &&
-      !state.mobileLinksOpen &&
-      !state.didMobileLinksSlideIn
-        ) {
-            setTimeout(toggleMobileLinks, 750);
-        }
-    });
-
-    function toggleMobileLinks() {
-        setState({
-            mobileLinksOpen: !state.mobileLinksOpen,
-            didMobileLinksSlideIn:
-        state.didMobileLinksSlideIn || !state.mobileLinksOpen,
-        });
-        if (
-            state.mobileLinksOpen &&
-      props.data.uiHighlights.includes('mobile-links')
-        ) {
-            disableMobileLinksSlideIn();
-        }
-    }
-
-    function disableMobileLinksSlideIn() {
-        if (props.data.uiHighlights.includes('mobile-links')) {
-            props.actions.hideHighlights(['mobile-links']);
-        }
-    }
-
     function toggleMoreSiteSettings() {
         setState({
             moreSiteSettingsOpen: !state.moreSiteSettingsOpen,
             moreToggleSettingsOpen: false,
-            newToggleMenusHighlightHidden: true,
         });
         if (props.data.uiHighlights.includes('new-toggle-menus')) {
             props.actions.hideHighlights(['new-toggle-menus']);
@@ -104,7 +65,6 @@ function Body(
         setState({
             moreToggleSettingsOpen: !state.moreToggleSettingsOpen,
             moreSiteSettingsOpen: false,
-            newToggleMenusHighlightHidden: true,
         });
         if (props.data.uiHighlights.includes('new-toggle-menus')) {
             props.actions.hideHighlights(['new-toggle-menus']);

@@ -16,7 +16,6 @@ import {getPaths} from './utils.js';
 function archiveFiles({files, dest, cwd, date, mode}) {
     return new Promise((resolve) => {
         const archive = new yazl.ZipFile();
-        // Rproducible builds: sort filenames so files appear in the same order in zip
         files.sort();
         files.forEach((file) => archive.addFile(
             file,
@@ -41,8 +40,6 @@ async function archiveDirectory({dir, dest, date, mode}) {
  * @returns {Promise<Date>} JavaScript Date object with date adjusted to counterbalance user's time zone
  */
 async function getLastCommitTime() {
-    // We need to offset the user's time zone since yazl can not represent time zone in produced archive
-    // If called outside of the git tree, make sure we don't pass a negative date.
     return new Promise((resolve) =>
         exec('git log -1 --format=%ct', (_, stdout) => resolve(new Date(
             Math.max(0, Number(stdout) + (new Date()).getTimezoneOffset() * 60) * 1000
@@ -66,8 +63,6 @@ async function zip({platforms, debug, version}) {
             dir: getDestDir({debug, platform}),
             dest: `${releaseDir}/dr-${platform}${version}.${format}`,
             date,
-            // Reproducible builds: set permission flags on file like chmod 644 or -rw-r--r--
-            // This is needed because the built file might have different flags on different systems
             mode: 0o644,
         }));
     }

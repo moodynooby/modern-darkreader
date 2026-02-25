@@ -1,17 +1,17 @@
 @color-back: #111318;                 // Ink-charcoal base (low glare, modern)
 @color-fore: #E8E3DC;                 // Warm ivory text for a softer feel
 
-@color-control-back: #111318;
+@color-control-back: @color-back;
 @color-control-hover: #171A20;        // Gentle elevation, not jumpy
 @color-control-active: #5E7E98;       // Muted slate-blue for a calm active state
 @color-control-fore: #FFFFFF;
 @color-control-fore-inactive: #9FA9B1; // Cool-muted neutral for disabled
 
-@color-input-back: #111318;
-@color-input-hover: #171A20;
+@color-input-back: @color-back;
+@color-input-hover: @color-control-hover;
 @color-input-active: #1A1E25;         // Slight luminance lift for focus
-@color-input-fore: #E8E3DC;          
-@color-input-fore-active: #FFFFFF;
+@color-input-fore: @color-fore;          
+@color-input-fore-active: @color-control-fore;
 @color-input-fore-placeholder: #C0C6CC; // Soft gray-blue placeholder
 
 @color-border: #5E7E9833;             // Translucent blue-gray border (very subtle)
@@ -27,8 +27,6 @@
 @size-border: 0.125rem;
 @size-border-inner: 0.0625rem;
 @size-control-inner: 1.5rem;
-@size-control-description: 0.75rem;
-@size-scrollbar-padding: 0.25rem;
 @size-scrollbar-thickness: 0.75rem;
 @size-text-normal: 0.8125rem;
 @size-text-normal-height: 1.2rem;

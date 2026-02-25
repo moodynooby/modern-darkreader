@@ -43,7 +43,6 @@ export function injectStyleAway(styleElement: HTMLStyleElement | SVGStyleElement
 
         containerObserver = new MutationObserver(() => {
             if (container?.nextElementSibling != null) {
-                // Prevent clearing style overrides after container move
                 container.querySelectorAll('.darkreader--sync').forEach((el: HTMLStyleElement) => {
                     if (el.sheet!.cssRules.length > 0) {
                         let cssText = '';

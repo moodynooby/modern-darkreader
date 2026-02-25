@@ -8,7 +8,6 @@ declare const __LOG__: 'info' | 'warn';
 
 function sendLogToBG(level: 'info' | 'warn' | 'assert', ...args: any[]) {
     if (__WATCH__ && __LOG__ && (__LOG__ === 'info' || level === 'warn')) {
-        // No need to generate contextId since we do not expect a response
         chrome.runtime.sendMessage<DebugMessageCStoBG>({type: DebugMessageTypeCStoBG.LOG, data: {level, log: args}});
     }
 }
@@ -22,7 +21,6 @@ export function logInfo(...args: any[]): void {
 
 export function logWarn(...args: any[]): void {
     if (__DEBUG__) {
-        // console.warn is slow in Chrome
         // console.warn(...args);
         console.log('DARK READER', ...args);
         sendLogToBG('warn', ...args);

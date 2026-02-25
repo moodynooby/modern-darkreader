@@ -37,7 +37,7 @@ export default function CustomSettingsToggle({data, actions}: ExtWrapper) {
                         theme: {...data.settings.theme},
                     });
                     actions.changeSettings({customThemes: extended});
-                    (e.currentTarget as HTMLElement).classList.add('custom-settings-toggle--checked'); // Speed-up reaction
+                    (e.currentTarget as HTMLElement).classList.add('custom-settings-toggle--checked'); 
                 }
             }}
         >

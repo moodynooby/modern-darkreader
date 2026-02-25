@@ -32,9 +32,6 @@ function hasBuiltInDarkTheme() {
                 return false;
             }
             if (bgColor.r === 24 && bgColor.g === 26 && bgColor.b === 27) {
-                // For some websites changes to CSSStyleSheet.disabled and HTMLStyleElement.textContent
-                // are not being applied synchronously. For example https://zorin.com/
-                // Probably a browser bug. Treat as not having a dark theme.
                 return false;
             }
             if (bgColor.a === 1) {
@@ -171,7 +168,6 @@ export function runDarkThemeDetector(callback: (hasDarkTheme: boolean) => void, 
                 runCheck(callback);
             }
         };
-        // readystatechange event is not cancellable and does not bubble
         document.addEventListener('readystatechange', readyStateListener);
     }
 }

@@ -101,10 +101,7 @@ export default class Connector implements ExtensionActions {
             try {
                 await browser.commands.update({name: command, shortcut});
             } catch {
-                // Ignore this error
             }
-            // Query the real shortcut to get the exact value displayed by Firefox on about:addons
-            // or in case user has non-standard keyboard layout
             const commands = await browser.commands.getAll();
             const cmd = commands.find((cmd) => cmd.name === command);
             return (cmd && cmd.shortcut) || null;

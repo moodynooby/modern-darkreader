@@ -35,8 +35,6 @@ export function getAbsoluteURL($base: string, $relative: string): string {
     if ($relative.match(/^data\\?\:/)) {
         return $relative;
     }
-    // Check if relative starts with `//hostname...`.
-    // We have to add a protocol to make it absolute.
     if (/^\/\//.test($relative)) {
         return `${location.protocol}${$relative}`;
     }
@@ -45,11 +43,6 @@ export function getAbsoluteURL($base: string, $relative: string): string {
     return a.href;
 }
 
-// Check if any relative URL is on the window.location;
-// So that https://duck.com/ext.css would return true on https://duck.com/
-// But https://duck.com/styles/ext.css would return false on https://duck.com/
-// Visa versa https://duck.com/ext.css should return fasle on https://duck.com/search/
-// We're checking if any relative value within ext.css could potentially not be on the same path.
 export function isRelativeHrefOnAbsolutePath(href: string): boolean {
     if (href.startsWith('data:')) {
         return true;
@@ -65,8 +58,6 @@ export function isRelativeHrefOnAbsolutePath(href: string): boolean {
     if (url.port !== location.port) {
         return false;
     }
-    // Now check if the path is on the same path as the base
-    // We do this by getting the pathname up until the last slash.
     return url.pathname === location.pathname;
 }
 
@@ -321,7 +312,6 @@ export function isPDF(url: string): boolean {
             }
         }
     } catch (e) {
-        // Do nothing
     }
     return false;
 }
@@ -347,8 +337,6 @@ export function isURLEnabled(url: string, userSettings: UserSettings, {isProtect
     if (isProtected && !userSettings.enableForProtectedPages) {
         return false;
     }
-    // Only URL's with emails are getting here on thunderbird
-    // So we can skip the checks and just return true.
     if (__THUNDERBIRD__) {
         return true;
     }

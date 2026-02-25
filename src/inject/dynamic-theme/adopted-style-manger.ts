@@ -80,8 +80,6 @@ export function createAdoptedStyleSheetOverride(node: Document | ShadowRoot): Ad
             count += sheet.cssRules.length;
         });
         if (count === 1) {
-            // MS Copilot issue, where there is an empty `:root {}` style at the beginning.
-            // Counting all the rules for all the shadow DOM elements can be expensive.
             const rule = node.adoptedStyleSheets[0].cssRules[0];
             return rule instanceof CSSStyleRule ? rule.style.length : count;
         }

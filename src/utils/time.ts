@@ -42,7 +42,6 @@ export function nextTimeInterval(time0: string, time1: string, date: Date = new 
     const b = parse24HTime(time1);
     const t = [date.getHours(), date.getMinutes()];
 
-    // Ensure a <= b
     if (compareTime(a, b) > 0) {
         return nextTimeInterval(time1, time0, date);
     }
@@ -52,8 +51,6 @@ export function nextTimeInterval(time0: string, time1: string, date: Date = new 
     }
 
     if (compareTime(t, a) < 0) {
-        // t < a <= b
-        // Schedule for todate at time a
         date.setHours(a[0]);
         date.setMinutes(a[1]);
         date.setSeconds(0);
@@ -62,8 +59,6 @@ export function nextTimeInterval(time0: string, time1: string, date: Date = new 
     }
 
     if (compareTime(t, b) < 0) {
-        // a <= t < b
-        // Schedule for today at time b
         date.setHours(b[0]);
         date.setMinutes(b[1]);
         date.setSeconds(0);
@@ -71,8 +66,6 @@ export function nextTimeInterval(time0: string, time1: string, date: Date = new 
         return date.getTime();
     }
 
-    // a <= b <= t
-    // Schedule for tomorrow at time a
     return (new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1, a[0], a[1])).getTime();
 }
 
@@ -134,16 +127,13 @@ function getSunsetSunriseUTCTime(
     const D2R = Math.PI / 180;
     const R2D = 180 / Math.PI;
 
-    // convert the longitude to hour value and calculate an approximate time
     const lnHour = longitude / 15;
 
     function getTime(isSunrise: boolean) {
         const t = dayOfYear + (((isSunrise ? 6 : 18) - lnHour) / 24);
 
-        // calculate the Sun's mean anomaly
         const M = (0.9856 * t) - 3.289;
 
-        // calculate the Sun's true longitude
         let L = M + (1.916 * Math.sin(M * D2R)) + (0.020 * Math.sin(2 * M * D2R)) + 282.634;
         if (L > 360) {
             L -= 360;
@@ -151,7 +141,6 @@ function getSunsetSunriseUTCTime(
             L += 360;
         }
 
-        // calculate the Sun's right ascension
         let RA = R2D * Math.atan(0.91764 * Math.tan(L * D2R));
         if (RA > 360) {
             RA -= 360;
@@ -159,29 +148,23 @@ function getSunsetSunriseUTCTime(
             RA += 360;
         }
 
-        // right ascension value needs to be in the same qua
         const Lquadrant = (Math.floor(L / (90))) * 90;
         const RAquadrant = (Math.floor(RA / 90)) * 90;
         RA += (Lquadrant - RAquadrant);
 
-        // right ascension value needs to be converted into hours
         RA /= 15;
 
-        // calculate the Sun's declination
         const sinDec = 0.39782 * Math.sin(L * D2R);
         const cosDec = Math.cos(Math.asin(sinDec));
 
-        // calculate the Sun's local hour angle
         const cosH = (Math.cos(zenith * D2R) - (sinDec * Math.sin(latitude * D2R))) / (cosDec * Math.cos(latitude * D2R));
         if (cosH > 1) {
-            // always night
             return {
                 alwaysDay: false,
                 alwaysNight: true,
                 time: 0,
             };
         } else if (cosH < -1) {
-            // always day
             return {
                 alwaysDay: true,
                 alwaysNight: false,
@@ -191,10 +174,8 @@ function getSunsetSunriseUTCTime(
 
         const H = (isSunrise ? (360 - R2D * Math.acos(cosH)) : (R2D * Math.acos(cosH))) / 15;
 
-        // calculate local mean time of rising/setting
         const T = H + RA - (0.06571 * t) - 6.622;
 
-        // adjust back to UTC
         let UT = T - lnHour;
         if (UT > 24) {
             UT -= 24;
@@ -202,7 +183,6 @@ function getSunsetSunriseUTCTime(
             UT += 24;
         }
 
-        // convert to milliseconds
         return {
             alwaysDay: false,
             alwaysNight: false,
@@ -284,22 +264,10 @@ export function nextTimeChangeAtLocation(
     );
 
     if (currentTime <= firstTimeOnDay!) {
-        // Timeline:
-        // --- firstTimeOnDay <---> lastTimeOnDay ---
-        //  ^
-        // Current time
         return Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), 0, 0, 0, firstTimeOnDay);
     }
     if (currentTime <= lastTimeOnDay!) {
-        // Timeline:
-        // --- firstTimeOnDay <---> lastTimeOnDay ---
-        //                      ^
-        //                 Current time
         return Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), 0, 0, 0, lastTimeOnDay);
     }
-    // Timeline:
-    // --- firstTimeOnDay <---> lastTimeOnDay ---
-    //                                         ^
-    //                                    Current time
     return Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate() + 1, 0, 0, 0, firstTimeOnDay);
 }

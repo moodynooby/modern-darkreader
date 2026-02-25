@@ -146,17 +146,6 @@ export default tslint.config({
 
         'import/no-duplicates': 'error',
 
-        /*
-        'import/no-unresolved': ['error', {
-            ignore: [
-                '^generators\/',
-                '^malevic\/',
-                '^plus\/',
-                '^ui\/',
-                '^utils\/',
-            ],
-        }],
-        */
         'import/no-unresolved': 'off',
 
         'import/no-restricted-paths': ['error', {

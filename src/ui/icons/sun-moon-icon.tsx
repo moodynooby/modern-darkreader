@@ -10,7 +10,6 @@ interface SunMoonIconProps {
 
 export function SunMoonIcon({date, latitude, longitude}: SunMoonIconProps): Malevic.Child {
     if (latitude == null || longitude == null) {
-        // question mark icon
         return (
             <svg viewBox="0 0 16 16">
                 <text
@@ -26,7 +25,6 @@ export function SunMoonIcon({date, latitude, longitude}: SunMoonIconProps): Male
     }
 
     if (isNightAtLocation(latitude, longitude, date)) {
-        // moon icon
         return (
             <svg viewBox="0 0 16 16">
                 <path fill="white" stroke="none" d="M 6 3 Q 10 8 6 13 Q 12 13 12 8 Q 12 3 6 3" />
@@ -34,7 +32,6 @@ export function SunMoonIcon({date, latitude, longitude}: SunMoonIconProps): Male
         );
     }
 
-    // sun icon
     return (
         <svg viewBox="0 0 16 16">
             <circle fill="white" stroke="none" cx="8" cy="8" r="3" />

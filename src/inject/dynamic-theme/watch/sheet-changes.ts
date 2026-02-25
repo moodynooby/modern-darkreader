@@ -18,8 +18,6 @@ export function createSheetWatcher(
 
     function watchForSheetChanges() {
         watchForSheetChangesUsingProxy();
-        // Sometimes sheet can be null in Firefox and Safari
-        // So need to watch for it using rAF
         if (!__THUNDERBIRD__ && !(canUseSheetProxy && element.sheet)) {
             rafSheetWatcher = createRAFSheetWatcher(element, safeGetSheetRules, callback, isCancelled);
             rafSheetWatcher.start();

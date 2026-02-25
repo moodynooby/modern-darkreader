@@ -350,7 +350,6 @@ export function overrideInlineStyle(element: HTMLElement, theme: Theme, ignoreIn
         }
     }
 
-    // ProseMirror editor rebuilds entire HTML after style changes
     if (element.parentElement?.dataset.nodeViewContent) {
         return;
     }
@@ -416,7 +415,6 @@ export function overrideInlineStyle(element: HTMLElement, theme: Theme, ignoreIn
                 }
                 if (value && targetCSSProp === 'background-image') {
                     if ((element === document.documentElement || element === document.body) && value === sourceValue) {
-                        // Remove big bright backgrounds from root or body
                         value = 'none';
                     }
                     setStaticValue(value);
@@ -493,9 +491,6 @@ export function overrideInlineStyle(element: HTMLElement, theme: Theme, ignoreIn
         setCustomProp('background-image', 'background-image', value);
     }
 
-    // We can catch some link elements here, that are from `<link rel="mask-icon" color="#000000">`.
-    // It's valid HTML code according to the specs, https://html.spec.whatwg.org/#attr-link-color
-    // We don't want to touch such links, as it cause weird browser behavior (silent DOMException).
     if (element.hasAttribute('color') && (element as HTMLLinkElement).rel !== 'mask-icon') {
         let value = element.getAttribute('color')!;
         if (value.match(/^[0-9a-f]{3}$/i) || value.match(/^[0-9a-f]{6}$/i)) {
@@ -512,10 +507,6 @@ export function overrideInlineStyle(element: HTMLElement, theme: Theme, ignoreIn
             const value = element.getAttribute('fill')!;
             if (value !== 'none' && value !== 'currentColor') {
                 if (!(element instanceof SVGTextElement)) {
-                    // getBoundingClientRect forces a layout change. And when it happens and
-                    // the DOM is not in the `complete` readystate, it will cause the layout to be drawn
-                    // and it will cause a layout of unstyled content which results in white flashes.
-                    // Therefore, check if the DOM is at the `complete` readystate.
                     const handleSVGElement = () => {
                         let isSVGSmall = false;
                         const root = getSVGElementRoot(element);
@@ -560,8 +551,6 @@ export function overrideInlineStyle(element: HTMLElement, theme: Theme, ignoreIn
     }
 
     element.style && iterateCSSDeclarations(element.style, (property, value) => {
-        // Temporarily ignore background images due to the possible performance
-        // issues and complexity of handling async requests.
         if (property === 'background-image' && value.includes('url')) {
             if (element === document.documentElement || element === document.body) {
                 setCustomProp(property, property, value);

@@ -158,7 +158,6 @@ function createStaticStyleOverrides() {
     const enableCustomElementRegistryProxy = !(fixes && fixes.disableCustomElementRegistryProxy);
     document.dispatchEvent(new CustomEvent('__darkreader__cleanUp'));
     if (__CHROMIUM_MV3__) {
-        // Notify the dedicated injector of the data.
         document.dispatchEvent(new CustomEvent('__darkreader__stylesheetProxy__arg', {detail: {enableStyleSheetsProxy, enableCustomElementRegistryProxy}}));
     } else {
         const proxyScript = createOrUpdateScript('darkreader--proxy');
@@ -201,10 +200,8 @@ function createShadowStaticStyleOverridesInner(root: ShadowRoot) {
 
 function delayedCreateShadowStaticStyleOverrides(root: ShadowRoot): void {
     const observer = new MutationObserver((mutations, observer) => {
-        // Disconnect observer immediately before making any other changes
         observer.disconnect();
 
-        // Do not make any changes unless Dark Reader's fixes have been removed
         for (const {type, removedNodes} of mutations) {
             if (type === 'childList') {
                 for (const {nodeName, className} of removedNodes as any) {
@@ -220,9 +217,6 @@ function delayedCreateShadowStaticStyleOverrides(root: ShadowRoot): void {
 }
 
 function createShadowStaticStyleOverrides(root: ShadowRoot) {
-    // The shadow DOM may not be populated yet and the custom element implementation
-    // may assume that unpopulated shadow root is empty and inadvertently remove
-    // Dark Reader's overrides
     const delayed = root.firstChild === null;
     createShadowStaticStyleOverridesInner(root);
     if (delayed) {
@@ -563,8 +557,6 @@ function isAnotherDarkReaderInstanceActive() {
     return false;
 }
 
-// Give them a second chance,
-// but never a third
 let interceptorAttempts = 2;
 
 function interceptOldScript({success, failure}: {success: () => void; failure: () => void}) {
@@ -650,8 +642,6 @@ function tryInvertChromePDF() {
 export function createOrUpdateDynamicTheme(theme: Theme, dynamicThemeFixes: DynamicThemeFix[], iframe: boolean): void {
     const dynamicThemeFix = selectRelevantFix(document.location.href, dynamicThemeFixes);
 
-    // Most websites will have only the generic fix applied ('*'), some will have generic fix and one site-specific fix (two in total),
-    // and very few will have multiple site-specific fixes
     // TODO: add a navigation listener here for this case
 
     createOrUpdateDynamicThemeInternal(theme, dynamicThemeFix, iframe);

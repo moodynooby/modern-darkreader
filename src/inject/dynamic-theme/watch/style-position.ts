@@ -110,16 +110,11 @@ export function watchForStylePositions(
         });
         potentialHosts.forEach((el) => {
             if (el.shadowRoot && !observedRoots.has(el)) {
-                // Some shadow roots could be created using templates
                 subscribeForShadowRootChanges(el);
                 deepObserve(el.shadowRoot);
             }
         });
 
-        // Firefox occasionally fails to reflect existence of a node in both CSS's view of the DOM (':not(:defined)'),
-        // and in DOM walker's view of the DOM. So instead we also check these mutations just in case.
-        // In practice, at least one place reflects appearance of the node.
-        // URL for testing: https://chromestatus.com/roadmap
         additions.forEach((node) => isCustomElement(node) && recordUndefinedElement(node));
 
         additions.forEach((node) => checkImageSelectors(node));
@@ -229,7 +224,6 @@ export function watchForStylePositions(
     collectUndefinedElements(document);
 
     addDOMReadyListener(() => {
-        // Some shadow roots could be created using templates
         forEach(document.body.children, (el) => {
             if (el.shadowRoot && !observedRoots.has(el)) {
                 subscribeForShadowRootChanges(el);

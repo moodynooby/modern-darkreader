@@ -24,38 +24,6 @@
         height: 24.4375rem;
     }
 
-    .darkreader-version {
-        display: inline-block;
-        font-size: @size-text-small;
-        line-height: @size-text-small-height;
-        text-align: center;
-        -moz-user-select: none;
-        user-select: none;
-        width: 100%;
-    }
-
-    .darkreader-version {
-        bottom: 0;
-        margin-bottom: 0.125rem;
-        position: absolute;
-        right: 0;
-    }
-}
-
-.mobile {
-    .darkreader-version {
-        position: relative;
-    }
-}
-
-.preview .dev-tools-button {
-    overflow: visible;
-    position: relative;
-    width: calc(100% - 2 * 0.125rem);
-}
-
-.mobile,
-.preview {
     @import "../main-page/style.less";
     @import "../page-viewer/style.less";
     @import "../theme/controls/theme-control.less";
@@ -77,33 +45,9 @@
     }
 }
 
-@media screen and (min-width: 21.25rem) {
-    .mobile {
-        font-size: 20px;
-    }
-}
-
-@media screen and (min-width: 25.5rem) {
-    .mobile {
-        font-size: 24px;
-    }
-}
-
-@media screen and (min-resolution: 29.75rem) {
-    .mobile {
-        font-size: 28px;
-    }
-}
-
 @media screen and (min-width: 34rem) {
     .mobile {
         font-size: 32px;
-    }
-}
-
-.firefox {
-    .darkreader-version {
-        display: none;
     }
 }
 

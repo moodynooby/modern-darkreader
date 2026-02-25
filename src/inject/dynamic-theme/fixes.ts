@@ -21,7 +21,6 @@ export function findRelevantFix(documentURL: string, fixes: DynamicThemeFix[]): 
     let maxSpecificityIndex: number | null = null;
     for (let i = 1; i < fixes.length; i++) {
         if (isURLInList(documentURL, fixes[i].url)) {
-            // Note: this is legacy logic, a bit odd
             const specificity = fixes[i].url[0].length;
             if (maxSpecificityIndex === null || maxSpecificity < specificity) {
                 maxSpecificity = specificity;

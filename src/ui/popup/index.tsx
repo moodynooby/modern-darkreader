@@ -4,12 +4,10 @@ import {sync} from 'malevic/dom';
 import type {
     ExtensionData,
     ExtensionActions,
-    DebugMessageBGtoCS,
-    DebugMessageBGtoUI,
 } from '../../definitions';
-import {DebugMessageTypeBGtoUI} from '../../utils/message';
 import {isMobile, isFirefox} from '../../utils/platform';
 import Connector from '../connect/connector';
+import {setupDebugHotReload} from '../debug-hotreload';
 import {getFontList, saveFile} from '../utils';
 import Body from './components/body';
 import {fixNotClosingPopupOnNavigation} from './utils/issues';
@@ -79,27 +77,7 @@ if (isFirefox) {
 
 declare const __DEBUG__: boolean;
 if (__DEBUG__) {
-    chrome.runtime.onMessage.addListener(
-        ({type}: DebugMessageBGtoCS | DebugMessageBGtoUI) => {
-            if (type === DebugMessageTypeBGtoUI.CSS_UPDATE) {
-                document
-                    .querySelectorAll('link[rel="stylesheet"]')
-                    .forEach((link: HTMLLinkElement) => {
-                        const url = link.href;
-                        link.disabled = true;
-                        const newLink = document.createElement('link');
-                        newLink.rel = 'stylesheet';
-                        newLink.href = url.replace(/\?.*$/, `?nocache=${Date.now()}`);
-            link.parentElement!.insertBefore(newLink, link);
-            link.remove();
-                    });
-            }
-
-            if (type === DebugMessageTypeBGtoUI.UPDATE) {
-                location.reload();
-            }
-        }
-    );
+    setupDebugHotReload();
 }
 
 declare const __TEST__: boolean;
@@ -126,7 +104,6 @@ if (__TEST__) {
             const {type, id, data} = message;
             switch (type) {
                 case 'popup-click': {
-                    // The required element may not exist yet
                     const check = () => {
                         const element: HTMLElement | null = document.querySelector(data);
                         if (element) {
@@ -141,7 +118,6 @@ if (__TEST__) {
                     break;
                 }
                 case 'popup-exists': {
-                    // The required element may not exist yet
                     const check = () => {
                         const element: HTMLElement | null = document.querySelector(data);
                         if (element) {

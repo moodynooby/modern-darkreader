@@ -1,5 +1,4 @@
 // @ts-check
-// This plugin resolves location of malevic module
 import rollupPluginNodeResolve from '@rollup/plugin-node-resolve';
 /** @type {any} */
 import rollupPluginReplace from '@rollup/plugin-replace';
@@ -86,7 +85,6 @@ async function bundleJS(/** @type {JSEntry} */entry, platform, debug, watch, log
             break;
     }
 
-    // See comment below
     // TODO(anton): remove this once Firefox supports tab.eval() via WebDriver BiDi
     const mustRemoveEval = !test && (platform === PLATFORM.FIREFOX_MV2) && (entry.src === 'src/inject/index.ts');
 
@@ -105,11 +103,6 @@ async function bundleJS(/** @type {JSEntry} */entry, platform, debug, watch, log
             throw error;
         },
         plugins: [
-            // Firefox WebDriver implementation does not currently support tab.eval() functions fully,
-            // so we have to manually polyfill it via regular eval().
-            // This plugin is necessary to avoid (benign) warnings in the console during builds, it just replaces
-            // literally one occurrence of eval() in our code even before TypeScript even encounters it.
-            // With this plugin, warning appears only on Firefox test builds.
             // TODO(anton): remove this once Firefox supports tab.eval() via WebDriver BiDi
             rollupPluginReplace({
                 preventAssignment: true,

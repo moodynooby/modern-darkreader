@@ -105,7 +105,6 @@ export function injectProxy(enableStyleSheetsProxy: boolean, enableCustomElement
     override(CSSStyleSheet, 'addRule', (native) => function (selector?: string, style?: string, index?: number) {
         native.call(this, selector, style, index);
         reportSheetChange(this);
-        // Should always returns -1 https://developer.mozilla.org/en-US/docs/Web/API/CSSStyleSheet/addRule#Return_value.
         return -1;
     });
 
@@ -141,8 +140,6 @@ export function injectProxy(enableStyleSheetsProxy: boolean, enableCustomElement
         return native.call(this, options);
     });
 
-    // Reference:
-    // https://github.com/darkreader/darkreader/issues/6480#issuecomment-897696175
     const shouldWrapHTMLElement = location.hostname === 'baidu.com' || location.hostname.endsWith('.baidu.com');
     if (shouldWrapHTMLElement) {
         override(Element, 'getElementsByTagName', (native) => function (tagName: string): NodeListOf<HTMLElement> {
@@ -169,8 +166,6 @@ export function injectProxy(enableStyleSheetsProxy: boolean, enableCustomElement
         });
     }
 
-    // Reference:
-    // https://github.com/darkreader/darkreader/issues/10300#issuecomment-1317445632
     const shouldProxyChildNodes = [
         'brilliant.org',
         'www.vy.no',

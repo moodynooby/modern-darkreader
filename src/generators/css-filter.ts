@@ -56,7 +56,6 @@ export function cssFilterStyleSheetTemplate(filterRoot: string, filterValue: str
 
     lines.push('@media screen {');
 
-    // Add leading rule
     if (filterValue && isTopFrame) {
         lines.push('');
         lines.push('/* Leading rule */');
@@ -64,27 +63,23 @@ export function cssFilterStyleSheetTemplate(filterRoot: string, filterValue: str
     }
 
     if (config.mode === FilterMode.dark) {
-        // Add reverse rule
         lines.push('');
         lines.push('/* Reverse rule */');
         lines.push(createReverseRule(reverseFilterValue, fix));
     }
 
     if (config.useFont || config.textStroke > 0) {
-        // Add text rule
         lines.push('');
         lines.push('/* Font */');
         lines.push(createTextStyle(config));
     }
 
-    // Fix bad font hinting after inversion
     lines.push('');
     lines.push('/* Text contrast */');
     lines.push('html {');
     lines.push('  text-shadow: 0 0 0 !important;');
     lines.push('}');
 
-    // Full screen fix
     lines.push('');
     lines.push('/* Full screen */');
     [':-webkit-full-screen', ':-moz-full-screen', ':fullscreen'].forEach((fullScreen) => {
@@ -96,8 +91,6 @@ export function cssFilterStyleSheetTemplate(filterRoot: string, filterValue: str
 
     if (isTopFrame) {
         const light: [number, number, number] = [255, 255, 255];
-        // If browser affected by Chromium Issue 501582, set dark background on html
-        // Or if browser is Firefox v102+
         const bgColor = (!hasPatchForChromiumIssue501582() && !hasFirefoxNewRootBehavior()) && config.mode === FilterMode.dark ?
             applyColorMatrix(light, createFilterMatrix(config)).map(Math.round) :
             light;
@@ -203,7 +196,6 @@ export function getInversionFixesFor(url: string, fixes: string, index: SiteFixe
     };
 
     if (url) {
-        // Search for match with given URL
         const matches = inversionFixes
             .slice(1)
             .filter((s) => isURLInList(url, s.url))

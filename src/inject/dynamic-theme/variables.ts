@@ -285,7 +285,6 @@ export class VariablesStore {
                         },
                         (fallback) => tryModifyBgColor(fallback, theme),
                     );
-                    // Check if the property is box-shadow and if so, do a pass-through to modify the shadow.
                     if (property === 'box-shadow') {
                         const shadowModifier = getShadowModifierWithInfo(variableReplaced)!;
                         const modifiedShadow = shadowModifier(theme);
@@ -298,7 +297,6 @@ export class VariablesStore {
 
                 const modified = modify();
                 if (unknownVars.size > 0) {
-                    // web.dev and voice.google.com issue where the variable is never defined, but the fallback is.
                     // TODO: Return a fallback value along with a way to subscribe for a change.
                     if (isFallbackResolved(modified)) {
                         return modified;
@@ -402,8 +400,6 @@ export class VariablesStore {
         }
         this.definedVars.add(varName);
 
-        // Check if the value is either a raw value or a value that can be parsed
-        // e.g. rgb, hsl.
         const isColor = Boolean(
             getRGBValues(value) ||
             parseColorWithCache(value)
@@ -752,10 +748,7 @@ function handleRawColorValue(
     if (rgb) {
         const outputColor = modifyFunction(rgb, theme, !isRaw);
 
-        // If it's raw, we need to convert it back to the "raw" format.
         if (isRaw) {
-            // This should technically never fail(returning an empty string),
-            // but just to be safe, we will return outputColor.
             const outputInRGB = parseColorWithCache(outputColor);
             return (
                 outputInRGB ? (

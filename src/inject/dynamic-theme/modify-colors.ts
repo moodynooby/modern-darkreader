@@ -171,8 +171,6 @@ function modifyBgHSL({h, s, l, a}: HSLA, pole: HSLA): HSLA {
         }
     }
 
-    // Lower the lightness, if the resulting
-    // hue is in lower yellow spectrum.
     if (hx > 40 && hx < 80) {
         lx *= 0.75;
     }

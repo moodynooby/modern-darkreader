@@ -59,7 +59,6 @@ export function parseSitesFixesConfig<T extends SiteProps>(text: string, options
     return sites;
 }
 
-// URL patterns are guaranteed to not have protocol and leading '/'
 export function getDomain(url: string): string {
     try {
         return (new URL(url)).hostname.toLowerCase();
@@ -91,11 +90,9 @@ function processSiteFixesConfigBlock(text: string, offsets: Array<[number, numbe
 
 function extractURLsFromSiteFixesConfig(text: string): {urls: string[][]; offsets: Array<[number, number]>} {
     const urls: string[][] = [];
-    // Array of tuples, where first number is an offset of record start and second number is record length.
     const offsets: Array<[number, number]> = [];
 
     let recordStart = 0;
-    // Delimiter between two blocks
     const delimiterRegex = /^\s*={2,}\s*$/gm;
     let delimiter: RegExpMatchArray | null;
     while ((delimiter = delimiterRegex.exec(text))) {

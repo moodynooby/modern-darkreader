@@ -25,7 +25,6 @@ export function enable(themeOptions: Partial<Theme> | null = {}, fixes: DynamicT
         throw new Error('Theme engine is not supported.');
     }
     // TODO: replace with createOrUpdateDynamicTheme() and make fixes signature
-    // DynamicThemeFix | DynamicThemeFix[]
     createOrUpdateDynamicThemeInternal(theme, fixes, isIFrame);
     isDarkReaderEnabled = true;
 }

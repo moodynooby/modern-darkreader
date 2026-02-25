@@ -62,7 +62,6 @@ export function createNodeAsap({
         if (document.readyState === 'complete') {
             ready();
         } else {
-            // readystatechange event is not cancellable and does not bubble
             document.addEventListener('readystatechange', ready);
             observer.observe(document, {childList: true, subtree: true});
         }
@@ -134,9 +133,6 @@ export function watchForNodePosition<T extends Node>(
             }
         }
 
-        // If parent becomes disconnected from the DOM, fetches the new head and
-        // save that as parent. Do this only for the head mode, as those are
-        // important nodes to keep.
         if (mode === 'head' && !parent!.isConnected) {
             parent = document.head;
             // TODO: Set correct prevSibling, which needs to be the last `.darkreader` in <head> that isn't .darkeader--sync or .darkreader--cors.
@@ -226,8 +222,6 @@ export function removeDOMReadyListener(listener: () => void): void {
     readyStateListeners.delete(listener);
 }
 
-// `interactive` can and will be fired when their are still stylesheets loading.
-// We use certain actions that can cause a forced layout change, which is bad.
 export function isReadyStateComplete(): boolean {
     return document.readyState === 'complete';
 }
@@ -255,7 +249,6 @@ if (!isDOMReady()) {
         }
     };
 
-    // readystatechange event is not cancellable and does not bubble
     document.addEventListener('readystatechange', onReadyStateChange);
 }
 

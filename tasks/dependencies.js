@@ -95,7 +95,6 @@ async function main() {
     log.ok('Dependency upgrade does not result in change to built output');
 
     // TODO: when moving this to CI, provide branch name in CI config, along with
-    // a token
     await command('git push origin HEAD:bump-dependencies');
     log.ok('Pushed to GitHub');
 }

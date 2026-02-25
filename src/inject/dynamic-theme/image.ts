@@ -50,7 +50,6 @@ export async function getImageDetails(url: string): Promise<ImageDetails> {
                         if (svgOpening.includes('viewbox=') && !svgOpening.includes('width=') && !svgOpening.includes('height=')) {
                             useViewBox = true;
 
-                            // Explicitly set size due to unexpected drawImage() behavior
                             const viewboxIndex = svgOpening.indexOf('viewbox=');
                             const quote = svgOpening[viewboxIndex + 8];
                             const viewboxCloseIndex = svgOpening.indexOf(quote, viewboxIndex + 9);
@@ -317,9 +316,6 @@ function tryConvertDataURLToBlobSync(dataURL: string): Blob | null {
     const encoding = dataURL.substring(semicolonIndex + 1, commaIndex).toLocaleLowerCase();
     const mediaType = dataURL.substring(colonIndex + 1, semicolonIndex);
 
-    // It should be possible to easily convert UTF-8,
-    // though it is unclear if decodeURIComponent will be necessary
-    // and if it will be performant enough for big Data URLs
     if (encoding !== 'base64' || !mediaType) {
         return null;
     }

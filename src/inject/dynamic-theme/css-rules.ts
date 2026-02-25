@@ -50,8 +50,6 @@ export const ignoredMedia = [
     'tv',
 ];
 
-// These properties are not iterable
-// when they depend on variables
 const shorthandVarDependantProperties = [
     'background',
     'border',
@@ -73,7 +71,6 @@ export function iterateCSSDeclarations(style: CSSStyleDeclaration, iterate: (pro
     const cssText = style.cssText;
     if (cssText.includes('var(')) {
         if (isSafari) {
-            // Safari doesn't show shorthand properties' values
             shorthandVarDepPropRegexps!.forEach(([prop, regexp]) => {
                 const match = cssText.match(regexp);
                 if (match && match[1]) {
@@ -112,20 +109,14 @@ export function iterateCSSDeclarations(style: CSSStyleDeclaration, iterate: (pro
     });
 }
 
-// `rule.cssText` fails when the rule has both
-// `background: var()` and `background-*`.
-// This fix retrieves the source value from CSS text,
-// but will only work for <style> elements and
-// there is a chance of multiple matches.
-// https://issues.chromium.org/issues/40252592
 function handleEmptyShorthand(shorthand: string, style: CSSStyleDeclaration, iterate: (property: string, value: string) => void) {
     const parentRule = style.parentRule;
     if (isStyleRule(parentRule)) {
         const sourceCSSText = parentRule.parentStyleSheet?.ownerNode?.textContent;
         if (sourceCSSText) {
             let escapedSelector = escapeRegExpSpecialChars(parentRule.selectorText);
-            escapedSelector = escapedSelector.replaceAll(/\s+/g, '\\s*'); // Space count can differ
-            escapedSelector = escapedSelector.replaceAll(/::/g, '::?'); // ::before can be :before
+            escapedSelector = escapedSelector.replaceAll(/\s+/g, '\\s*'); 
+            escapedSelector = escapedSelector.replaceAll(/::/g, '::?'); 
             const regexp = new RegExp(`${escapedSelector}\\s*{[^}]*${shorthand}:\\s*([^;}]+)`);
             const match = sourceCSSText.match(regexp);
             if (match) {
@@ -141,10 +132,6 @@ function handleEmptyShorthand(shorthand: string, style: CSSStyleDeclaration, ite
 export const cssURLRegex = /url\((('.*?')|(".*?")|([^\)]*?))\)/g;
 export const cssImportRegex = /@import\s*(url\()?(('.+?')|(".+?")|([^\)]*?))\)? ?(screen)?;?/gi;
 
-// First try to extract the CSS URL value. Then do some post fixes, like unescaping
-// backslashes in the URL. (Chromium don't handle this natively). Remove all newlines
-// beforehand, otherwise `.` will fail matching the content within the url, as it
-// doesn't match any linebreaks.
 export function getCSSURLValue(cssURL: string): string {
     return cssURL.trim().replace(/[\n\r\\]+/g, '').replace(/^url\((.*)\)$/, '$1').trim().replace(/^"(.*)"$/, '$1').replace(/^'(.*)'$/, '$1').replace(/(?:\\(.))/g, '$1');
 }
@@ -187,8 +174,6 @@ export function isStyleRule(rule: CSSRule | null): rule is CSSStyleRule {
     if (styleRules.has(rule)) {
         return true;
     }
-    // Duck typing is faster than instanceof
-    // https://jsben.ch/B0eLa
     if ((rule as CSSStyleRule).selectorText) {
         styleRules.add(rule);
         return true;

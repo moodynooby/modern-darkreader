@@ -24,8 +24,6 @@ export function parseColorWithCache($color: string): RGBA | null {
     if (rgbaParseCache.has($color)) {
         return rgbaParseCache.get($color)!;
     }
-    // We cannot _really_ parse any color which has the calc() expression,
-    // so we try our best to remove those and then parse the value.
     if ($color.includes('calc(')) {
         $color = lowerCalcExpression($color);
     }
@@ -55,7 +53,6 @@ export function clearColorCache(): void {
     rgbaParseCache.clear();
 }
 
-// https://en.wikipedia.org/wiki/HSL_and_HSV
 export function hslToRGB({h, s, l, a = 1}: HSLA): RGBA {
     if (s === 0) {
         const [r, b, g] = [l, l, l].map((x) => Math.round(x * 255));
@@ -77,7 +74,6 @@ export function hslToRGB({h, s, l, a = 1}: HSLA): RGBA {
     return {r, g, b, a};
 }
 
-// https://en.wikipedia.org/wiki/HSL_and_HSV
 export function rgbToHSL({r: r255, g: g255, b: b255, a = 1}: RGBA): HSLA {
     const r = r255 / 255;
     const g = g255 / 255;
@@ -210,7 +206,6 @@ export function parse($color: string): RGBA | null {
     }
 
     if (c.startsWith('light-dark(') && c.endsWith(')')) {
-        // light-dark([color()], [color()])
         const match = c.match(/^light-dark\(\s*([a-z]+(\(.*\))?),\s*([a-z]+(\(.*\))?)\s*\)$/);
         if (match) {
             const schemeColor = isSystemDarkModeEnabled() ? match[3] : match[1];
@@ -450,38 +445,25 @@ function getSystemColor($color: string): RGBA {
     };
 }
 
-// lowerCalcExpression is a helper function that tries to remove `calc(...)`
-// expressions from the given string. It can only lower expressions to a certain
-// degree so we can keep this function easy and simple to understand.
 export function lowerCalcExpression(color: string): string {
-    // searchIndex will be used as searchIndex and as a "cursor" within
-    // the calc(...) expression.
     let searchIndex = 0;
 
-    // Replace the content between two indices.
     const replaceBetweenIndices = (start: number, end: number, replacement: string) => {
         color = color.substring(0, start) + replacement + color.substring(end);
     };
 
-    // Run this code until it doesn't find any `calc(...)`.
     while ((searchIndex = color.indexOf('calc(')) !== -1) {
-        // Get the parentheses ranges of `calc(...)`.
         const range = getParenthesesRange(color, searchIndex);
         if (!range) {
             break;
         }
 
-        // Get the content between the parentheses.
         let slice = color.slice(range.start + 1, range.end - 1);
-        // Does the content include a percentage?
         const includesPercentage = slice.includes('%');
-        // Remove all percentages.
         slice = slice.split('%').join('');
 
-        // Pass the content to the evalMath library and round its output.
         const output = Math.round(evalMath(slice));
 
-        // Replace `calc(...)` with the result.
         replaceBetweenIndices(range.start - 4, range.end, output + (includesPercentage ? '%' : ''));
     }
     return color;
@@ -670,7 +652,6 @@ const systemColors: Map<string, number> = new Map(Object.entries({
     '-webkit-focus-ring-color': 0xe59700,
 }).map(([key, value]) => [key.toLowerCase(), value] as [string, number]));
 
-// https://en.wikipedia.org/wiki/Relative_luminance
 export function getSRGBLightness(r: number, g: number, b: number): number {
     return (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
 }

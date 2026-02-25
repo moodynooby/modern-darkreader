@@ -120,11 +120,6 @@ async function getChromePath() {
     });
 }
 
-// async function timeout(delay) {
-//     await new Promise((resolve) => {
-//         setTimeout(resolve, delay);
-//     });
-// }
 
 async function pingSites(title, patterns) {
     const failures = [];
@@ -229,7 +224,6 @@ function patternToURL(pattern) {
         host = host.slice(1);
     }
     if (host.startsWith('*.')) {
-        // host = `www.${host.slice(2)}`;
         host = host.slice(2);
     }
     if (host.endsWith('.*.*')) {

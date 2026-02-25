@@ -14,7 +14,6 @@ export function runColorSchemeChangeDetector(callback: (isDark: boolean) => void
     }
     query = matchMedia('(prefers-color-scheme: dark)');
     if (isMatchMediaChangeEventListenerSupported) {
-        // MediaQueryList change event is not cancellable and does not bubble
         query.addEventListener('change', onChange);
     } else {
         query.addListener(onChange);

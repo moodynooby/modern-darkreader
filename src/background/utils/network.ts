@@ -19,7 +19,6 @@ export interface FileLoader {
 export async function readText(params: RequestParams): Promise<string> {
     return new Promise((resolve, reject) => {
         if (isXMLHttpRequestSupported) {
-            // Use XMLHttpRequest if it is available
             const request = new XMLHttpRequest();
             request.overrideMimeType('text/plain');
             request.open('GET', params.url, true);
@@ -37,8 +36,6 @@ export async function readText(params: RequestParams): Promise<string> {
             }
             request.send();
         } else if (isFetchSupported) {
-            // XMLHttpRequest is not available in Service Worker contexts like
-            // Manifest V3 background context
             let abortController: AbortController;
             let signal: AbortSignal | undefined;
             let timedOut = false;
@@ -91,8 +88,6 @@ class LimitedCacheStorage {
     constructor() {
         chrome.alarms.onAlarm.addListener(async (alarm) => {
             if (alarm.name === LimitedCacheStorage.ALARM_NAME) {
-                // We schedule only one-time alarms, so once it goes off,
-                // there are no more alarms scheduled.
                 LimitedCacheStorage.alarmIsActive = false;
                 this.removeExpiredRecords();
             }

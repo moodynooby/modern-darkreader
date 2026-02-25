@@ -33,7 +33,6 @@ export default class Messenger {
 
         chrome.runtime.onMessage.addListener(Messenger.messageListener);
 
-        // This is a work-around for Firefox bug which does not permit responding to onMessage handler above.
         if (isFirefox) {
             chrome.runtime.onConnect.addListener(Messenger.firefoxPortListener);
         }
@@ -80,7 +79,6 @@ export default class Messenger {
             case MessageTypeUItoBG.GET_DATA:
                 promise = Messenger.adapter.collect();
                 break;
-                // These types require data, so we need to add a listener to the port.
             case MessageTypeUItoBG.APPLY_DEV_DYNAMIC_THEME_FIXES:
             case MessageTypeUItoBG.APPLY_DEV_INVERSION_FIXES:
             case MessageTypeUItoBG.APPLY_DEV_STATIC_THEMES:

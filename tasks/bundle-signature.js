@@ -42,7 +42,6 @@ async function enumerateStandardPaths(dir, order) {
     }));
     completeRealPaths = completeRealPaths.filter(({archivePath}) => archivePath !== 'manifest.json' && !archivePath.startsWith('META-INF/'));
 
-    // Re-order paths if needed
     if (order) {
         const correctPaths = [];
         for (let i = 0; i < order.length; i++) {
@@ -51,7 +50,6 @@ async function enumerateStandardPaths(dir, order) {
         completeRealPaths = correctPaths;
     }
 
-    // manifest.json always comes first
     return completeRealPaths;
 }
 
@@ -188,12 +186,10 @@ async function signature({platforms, debug, version}) {
     try {
         await copyFile(sig, sigDest);
     } catch (e) {
-        // Do nothing
     }
     try {
         await copyFile(recommendation, recommendationDest);
     } catch (e) {
-        // Do nothing
     }
 }
 

@@ -12,7 +12,6 @@ export function createSVGFilterStylesheet(config: Theme, url: string, isTopFrame
         filterValue = getEmbeddedSVGFilterValue(getSVGFilterMatrixValue(config));
         reverseFilterValue = getEmbeddedSVGFilterValue(getSVGReverseFilterMatrixValue());
     } else {
-        // Chrome fails with "Unsafe attempt to load URL ... Domains, protocols and ports must match.
         filterValue = 'url(#dark-reader-filter)';
         reverseFilterValue = 'url(#dark-reader-reverse-filter)';
     }

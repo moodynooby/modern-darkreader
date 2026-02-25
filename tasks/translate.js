@@ -3,10 +3,6 @@ import fs from 'node:fs/promises';
 
 import {readFile, writeFile, fileExists, httpsRequest, timeout, log} from './utils.js';
 
-// To use this tool:
-// 1. Edit a line in en.config.
-// 2. Run `npm run translate-en-message message_id`.
-// 3. The line will be translated and written into other locales.
 // TODO: If necessary, new @id and empty lines should be copied as well.
 // TODO: Serbian translates into Cyrillic, but it is somehow possible to do Latin.
 
@@ -115,7 +111,6 @@ function parseLocale(content) {
         if (line.startsWith('@')) {
             id = line.substring(1);
         } else if (line.startsWith('#')) {
-            // Ignore
         } else if (messages.has(id)) {
             const message = messages.get(id);
             messages.set(id, `${message}\n${line}`);

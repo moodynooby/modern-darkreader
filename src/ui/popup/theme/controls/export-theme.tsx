@@ -30,7 +30,6 @@ export function ExportTheme({data}: ViewProps): Malevic.Child {
             return;
         }
         chrome.runtime.onMessage.addListener(listener);
-        // Here we use both frameId and documentId just in case page had already started navigation away
         chrome.tabs.sendMessage<MessageUItoCS>(data.activeTab.id, {type: MessageTypeUItoCS.EXPORT_CSS}, (__CHROMIUM_MV3__ || __CHROMIUM_MV2__ && documentId) ? {frameId: 0, documentId} : {frameId: 0});
     }
 

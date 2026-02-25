@@ -41,11 +41,6 @@ export default class ContentScriptManager {
                     } else {
                         ContentScriptManager.state = ContentScriptManagerState.NOTREGISTERED;
                         updateContentScripts();
-                        // Note: This API does not support registering injections into about:blank.
-                        // That is, there is no alternative to InjectDetails.matchAboutBlank
-                        // or static manifest declaration 'match_about_blank'.
-                        // Therefore we need to also specify these scripts in manifest.json
-                        // just for about:blank.
                         chrome.scripting.registerContentScripts([
                             {
                                 id: 'stylesheet-proxy',

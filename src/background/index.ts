@@ -71,7 +71,6 @@ type TestMessage =
       id: number;
     };
 
-// Start extension
 const extension = Extension.start();
 
 const welcome = `  /''''\\
@@ -133,7 +132,6 @@ if (__WATCH__) {
                         const message: DebugMessageBGtoCS = {
                             type: DebugMessageTypeBGtoCS.RELOAD,
                         };
-                        // Some contexts are not considered to be tabs and can not receive regular messages
                         chrome.runtime.sendMessage<DebugMessageBGtoCS>(message);
                         for (const tab of tabs) {
                             if (canInjectScript(tab.url)) {
@@ -141,7 +139,6 @@ if (__WATCH__) {
                                     chrome.tabs
                                         .sendMessage<DebugMessageBGtoCS>(tab.id!, message)
                                         .catch(() => {
-                                            /* noop */
                                         });
                                     continue;
                                 }
@@ -175,7 +172,6 @@ if (__TEST__) {
 
     const socket = new WebSocket(`ws://localhost:8894`);
     socket.onopen = async () => {
-    // Wait for extension to start
         await extension;
         socket.send(
             JSON.stringify({
@@ -258,7 +254,6 @@ if (__TEST__) {
 
     chrome.downloads.onCreated.addListener(
         ({id, mime, url, danger, paused}) => {
-            // Cancel download
             chrome.downloads.cancel(id);
 
             try {
@@ -280,7 +275,6 @@ if (__TEST__) {
                     })
                 );
             } catch (e) {
-                // Do nothing
             }
         }
     );

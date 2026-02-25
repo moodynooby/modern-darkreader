@@ -10,7 +10,6 @@ function cleanup() {
 
 function sendMessage(message: MessageCStoBG): void {
     const responseHandler = (response: MessageBGtoCS | 'unsupportedSender' | undefined) => {
-        // Vivaldi bug workaround. See TabManager for details.
         if (response === 'unsupportedSender') {
             cleanup();
         }
@@ -20,16 +19,6 @@ function sendMessage(message: MessageCStoBG): void {
         const promise = chrome.runtime.sendMessage<MessageCStoBG, MessageBGtoCS | 'unsupportedSender'>(message);
         promise.then(responseHandler).catch(cleanup);
     } catch (error) {
-        /*
-         * We get here if Background context is unreachable which occurs when:
-         *  - extension was disabled
-         *  - extension was uninstalled
-         *  - extension was updated and this is the old instance of content script
-         *
-         * Any async operations can be ignored here, but sync ones should run to completion.
-         *
-         * Regular message passing errors are returned via rejected promise or runtime.lastError.
-         */
         if (error.message === 'Extension context invalidated.') {
             console.log('Dark Reader: instance of old CS detected, cleaning up.');
             cleanup();

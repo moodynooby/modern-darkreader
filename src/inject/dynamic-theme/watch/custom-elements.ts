@@ -2,7 +2,6 @@ import {forEach} from '../../../utils/array';
 import {isDefinedSelectorSupported} from '../../../utils/platform';
 import {ASSERT} from '../../utils/log';
 
-// Set of lower-case custom element names which were already defined
 const definedCustomElements = new Set<string>();
 const undefinedGroups = new Map<string, Set<Element>>();
 let elementsDefinitionCallback: ((elements: Element[]) => void) | null;
@@ -21,7 +20,6 @@ export function recordUndefinedElement(element: Element): void {
         if (extendedTag) {
             tag = extendedTag;
         } else {
-            // Happens for <template> on YouTube
             return;
         }
     }
@@ -81,14 +79,10 @@ export function handleIsDefined(e: CustomEvent<{tag: string}>): void {
 
 async function customElementsWhenDefined(tag: string): Promise<void> {
     ASSERT('customElementsWhenDefined() expects lower-case node names', () => tag.toLowerCase() === tag);
-    // Custom element is already defined
     if (definedCustomElements.has(tag)) {
         return;
     }
-    // We need to await for element to be defined
     return new Promise<void>((resolve) => {
-        // `customElements.whenDefined` is not available in extensions
-        // https://bugs.chromium.org/p/chromium/issues/detail?id=390807
         if (window.customElements && typeof customElements.whenDefined === 'function') {
             customElements.whenDefined(tag).then(() => resolve());
         } else if (canOptimizeUsingProxy) {

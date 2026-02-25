@@ -57,16 +57,13 @@ export class Extension {
     private static readonly ALARM_NAME = 'auto-time-alarm';
     private static readonly LOCAL_STORAGE_KEY = 'Extension-state';
 
-    // Store system color theme
     private static readonly SYSTEM_COLOR_LOCAL_STORAGE_KEY = 'system-color-state';
     private static systemColorStateManager: StateManager<SystemColorState>;
 
-    // Record whether Extension.init() already ran since the last GB start
     private static initialized = false;
 
     static isFirstLoad = false;
 
-    // This sync initializer needs to run on every BG restart before anything else can happen
     private static init() {
         if (Extension.initialized) {
             return;
@@ -89,9 +86,7 @@ export class Extension {
         chrome.alarms.onAlarm.addListener(Extension.alarmListener);
 
         if (chrome.commands) {
-            // Firefox Android does not support chrome.commands
             if (isFirefox) {
-                // Firefox may not register onCommand listener on extension startup so we need to use setTimeout
                 setTimeout(() => chrome.commands.onCommand.addListener(async (command) => Extension.onCommand(command as Command, null, null, null)));
             } else {
                 chrome.commands.onCommand.addListener(async (command, tab) => Extension.onCommand(command as Command, tab && tab.id! || null, 0, null));
@@ -109,7 +104,6 @@ export class Extension {
             }, logWarn);
         }
         if (isDark === null) {
-            // Attempt to restore data from storage
             return Extension.systemColorStateManager.loadState();
         } else if (Extension.wasLastColorSchemeDark !== isDark) {
             Extension.wasLastColorSchemeDark = isDark;
@@ -263,7 +257,6 @@ export class Extension {
             case 'addSite': {
                 logInfo('Add Site command entered');
                 async function scriptPDF(tabId: number, frameId: number): Promise<boolean> {
-                    // We can not detect PDF if we do not know where we are looking for it
                     if (!(Number.isInteger(tabId) && Number.isInteger(frameId))) {
                         return false;
                     }
@@ -308,8 +301,6 @@ export class Extension {
         }
     };
 
-    // 75 is small enough to not notice it, and still catches when someone
-    // is holding down a certain shortcut.
     private static onCommand = debounce(75, Extension.onCommandInternal);
 
     private static async getShortcuts() {
@@ -381,7 +372,6 @@ export class Extension {
 
     private static onColorSchemeChange = async (isDark: boolean) => {
         if (Extension.wasLastColorSchemeDark === isDark) {
-            // If color scheme was already correct, we do not need to do anything
             return;
         }
         Extension.wasLastColorSchemeDark = isDark;
@@ -493,10 +483,6 @@ export class Extension {
         Extension.changeSettings({disabledFor: toggledList}, true);
     }
 
-    //------------------------------------
-    //
-    //       Handle config changes
-    //
 
     private static onAppToggle() {
         if (Extension.isExtensionSwitchedOn()) {
@@ -515,11 +501,6 @@ export class Extension {
         IconManager.setIcon({colorScheme: UserStorage.settings.theme.mode ? 'dark' : 'light'});
         Extension.stateManager!.saveState();
     }
-    //----------------------
-    //
-    // Add/remove css to tab
-    //
-    //----------------------
 
     private static getTabInfo(tabURL: string): Pick<TabInfo, 'isInDarkList' | 'isProtected'> {
         const isInDarkList = ConfigManager.isURLInDarkList(tabURL);
@@ -625,8 +606,6 @@ export class Extension {
         };
     };
 
-    //-------------------------------------
-    //          User settings
 
     private static async saveUserSettings() {
         await UserStorage.saveSettings();

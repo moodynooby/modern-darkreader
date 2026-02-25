@@ -46,7 +46,7 @@ export function saveFile(name: string, content: string): void {
 
 type AnyVoidFunction = (...args: any[]) => void;
 
-export function throttle<F extends AnyVoidFunction>(callback: F): F {
+function throttle<F extends AnyVoidFunction>(callback: F): F {
     let frameId: number | null = null;
     return ((...args: any[]) => {
         if (!frameId) {
@@ -124,7 +124,6 @@ export function createSwipeHandler(startHandler: StartSwipeHandler): (e: MouseEv
 export async function getFontList(): Promise<string[]> {
     return new Promise<string[]>((resolve) => {
         if (!chrome.fontSettings) {
-            // Todo: Remove it as soon as Firefox and Edge get support.
             resolve([
                 'serif',
                 'sans-serif',

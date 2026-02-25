@@ -44,24 +44,20 @@ export function setIgnoredCSSURLs(patterns: string[]): void {
     ignoredCSSURLPatterns = patterns || [];
 }
 
-// shouldIgnoreCSSURL checks if a stylesheet URL matches any ignored pattern
 function shouldIgnoreCSSURL(url: string): boolean {
     if (!url || ignoredCSSURLPatterns.length === 0) {
         return false;
     }
     for (const pattern of ignoredCSSURLPatterns) {
         if (pattern.startsWith('^')) {
-            // Prefix match
             if (url.startsWith(pattern.slice(1))) {
                 return true;
             }
         } else if (pattern.endsWith('$')) {
-            // Suffix match
             if (url.endsWith(pattern.slice(0, -1))) {
                 return true;
             }
         } else if (url.includes(pattern)) {
-            // Contains match
             return true;
         }
     }
@@ -151,8 +147,6 @@ export function manageStyle(element: StyleElement, { update, loadingStart, loadi
 
     const observer = new MutationObserver((mutations) => {
         if (mutations.some((m) => m.type === 'characterData') && containsCSSImport()) {
-            // Sometimes when <style> element text is too long, it
-            // may still be loading and contain @import later.
             const cssText = (element.textContent ?? '').trim();
             createOrUpdateCORSCopy(cssText, location.href).then(update);
         } else {
@@ -169,10 +163,6 @@ export function manageStyle(element: StyleElement, { update, loadingStart, loadi
         return cssText.match(cssImportRegex);
     }
 
-    // It loops trough the cssRules and check for CSSImportRule and their `href`.
-    // If the `href` isn't local and doesn't start with the same-origin.
-    // We can be ensure that's a cross-origin import
-    // And should add a cors-sheet to this element.
     function hasImports(cssRules: CSSRuleList | null, checkCrossOrigin: boolean) {
         let result = false;
         if (cssRules) {
@@ -275,8 +265,6 @@ export function manageStyle(element: StyleElement, { update, loadingStart, loadi
                     await linkLoading(element, loadingLinkId);
                 } catch (err) {
                     // NOTE: Some @import resources can fail,
-                    // but the style sheet can still be valid.
-                    // There's no way to get the actual error.
                     logWarn(err);
                     wasLoadingError = true;
                 }
@@ -286,8 +274,6 @@ export function manageStyle(element: StyleElement, { update, loadingStart, loadi
 
                 [cssRules, accessError] = getRulesOrError();
                 if (accessError) {
-                    // CORS error, cssRules are not accessible
-                    // for cross-origin resources
                     logWarn(accessError);
                 }
             }
@@ -325,8 +311,6 @@ export function manageStyle(element: StyleElement, { update, loadingStart, loadi
 
     async function createOrUpdateCORSCopy(cssText: string, cssBasePath: string) {
         if (cssText) {
-            // Sometimes cross-origin stylesheets are protected from direct access
-            // so need to load CSS text and insert it into style element
             try {
                 const fullCSSText = await replaceCSSImports(cssText, cssBasePath);
                 if (corsCopies.has(element)) {
@@ -348,11 +332,6 @@ export function manageStyle(element: StyleElement, { update, loadingStart, loadi
     function details(options: detailsArgument) {
         const rules = getRulesSync();
         if (!rules) {
-            // secondRound is only true after it's
-            // has gone trough `details()` & `getRulesAsync` already
-            // So that means that `getRulesSync` shouldn't fail.
-            // However as a fail-safe to prevent loops, we should
-            // return null here and not continue to `getRulesAsync`
             if (options.secondRound) {
                 logWarn('Detected dead-lock at details(), returning early to prevent it.');
                 return null;
@@ -405,11 +384,6 @@ export function manageStyle(element: StyleElement, { update, loadingStart, loadi
             syncStylePositionWatcher && syncStylePositionWatcher.stop();
             insertStyle();
 
-            // Firefox issue: Some websites get CSP warning,
-            // when `textContent` is not set (e.g. pypi.org).
-            // But for other websites (e.g. facebook.com)
-            // some images disappear when `textContent`
-            // is initially set to an empty string.
             if (syncStyle!.sheet == null) {
                 syncStyle!.textContent = '';
             }
@@ -443,9 +417,6 @@ export function manageStyle(element: StyleElement, { update, loadingStart, loadi
             });
             isOverrideEmpty = !syncStyle!.sheet || syncStyle!.sheet!.cssRules.length === 0;
             if (sheetModifier.shouldRebuildStyle()) {
-                // "update" function schedules rebuilding the style
-                // ideally to wait for link loading, because some sites put links any time,
-                // but it can be complicated, so waiting for document completion can do the trick
                 addReadyStateCompleteListener(() => update());
             }
         }
@@ -465,14 +436,10 @@ export function manageStyle(element: StyleElement, { update, loadingStart, loadi
     }
 
     // NOTE: In Firefox, when link is loading,
-    // `sheet` property is not null,
-    // but `cssRules` access error is thrown
     function isStillLoadingError(error: Error) {
         return error && error.message && error.message.includes('loading');
     }
 
-    // Seems like Firefox bug: silent exception is produced
-    // without any notice, when accessing <style> CSS rules
     function safeGetSheetRules() {
         const [cssRules, err] = getRulesOrError();
         if (err) {
@@ -577,8 +544,6 @@ async function linkLoading(link: HTMLLinkElement, loadingId: number) {
 }
 
 function getCSSImportURL(importDeclaration: string) {
-    // substring(7) is used to remove `@import` from the string.
-    // And then use .trim() to remove the possible whitespaces.
     return getCSSURLValue(importDeclaration.substring(7).trim().replace(/;$/, '').replace(/screen$/, ''));
 }
 

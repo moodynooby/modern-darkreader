@@ -126,7 +126,6 @@ export class StateManagerImpl<T extends Record<string, unknown>> {
         this.listeners = new Set();
 
         // TODO(Anton): consider calling this.loadState() to preload data,
-        // and remove StateManagerImplState.INITIAL.
     }
 
     private collectState() {
@@ -155,7 +154,6 @@ export class StateManagerImpl<T extends Record<string, unknown>> {
         switch (this.meta) {
             case StateManagerImplState.INITIAL:
                 this.meta = StateManagerImplState.READY;
-                // fallthrough
             case StateManagerImplState.READY:
                 this.applyState(state);
                 this.notifyListeners();
@@ -170,7 +168,6 @@ export class StateManagerImpl<T extends Record<string, unknown>> {
                 this.meta = StateManagerImplState.ONCHANGE_RACE;
                 break;
             case StateManagerImplState.ONCHANGE_RACE:
-                // We are already waiting for an active read/write operation to end
                 break;
             case StateManagerImplState.RECOVERY:
                 this.meta = StateManagerImplState.ONCHANGE_RACE;
@@ -182,11 +179,8 @@ export class StateManagerImpl<T extends Record<string, unknown>> {
         this.storage.set({[this.localStorageKey]: this.collectState()}, () => {
             switch (this.meta) {
                 case StateManagerImplState.INITIAL:
-                    // fallthrough
                 case StateManagerImplState.LOADING:
-                    // fallthrough
                 case StateManagerImplState.READY:
-                    // fallthrough
                 case StateManagerImplState.RECOVERY:
                     this.logWarn('Unexpected state. Possible data race!');
                     this.meta = StateManagerImplState.ONCHANGE_RACE;
@@ -207,15 +201,12 @@ export class StateManagerImpl<T extends Record<string, unknown>> {
         });
     }
 
-    // This function is not guaranteed to save state before returning
     async saveState(): Promise<void> {
         switch (this.meta) {
             case StateManagerImplState.INITIAL:
-                // Make sure not to overwrite data before it is loaded
                 this.logWarn('StateManager.saveState was called before StateManager.loadState(). Possible data race! Loading data instead.');
                 return this.loadState();
             case StateManagerImplState.LOADING:
-                // Need to wait for active read operation to end
                 this.logWarn('StateManager.saveState was called before StateManager.loadState() resolved. Possible data race! Loading data instead.');
                 return this.barrier!.entry();
             case StateManagerImplState.READY: {
@@ -225,7 +216,6 @@ export class StateManagerImpl<T extends Record<string, unknown>> {
                 return entry;
             }
             case StateManagerImplState.SAVING:
-                // Another save is in progress
                 this.meta = StateManagerImplState.SAVING_OVERRIDE;
                 return this.barrier!.entry();
             case StateManagerImplState.SAVING_OVERRIDE:

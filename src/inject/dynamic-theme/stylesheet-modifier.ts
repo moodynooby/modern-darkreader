@@ -98,8 +98,6 @@ export function createStyleSheetModifier(): StyleSheetModifier {
                 return;
             }
 
-            // A very specific case to skip. This causes a lot of calls to `getModifiableCSSDeclaration`
-            // and currently contributes nothing in real-world case.
             // TODO: Allow `setRule` to throw a exception when we're modifying SVGs namespace styles.
             if (rule.style.all === 'revert') {
                 return;
@@ -161,9 +159,6 @@ export function createStyleSheetModifier(): StyleSheetModifier {
             const {selector, declarations} = rule;
 
             let selectorText = selector;
-            // Empty :is() and :where() selectors or
-            // selectors like :is(:where(:-unknown))
-            // break Chrome 119 when calling deleteRule()
             const emptyIsWhereSelector = isChromium && selector.startsWith(':is(') && (
                 selector.includes(':is()') ||
                 selector.includes(':where()') ||
@@ -173,8 +168,6 @@ export function createStyleSheetModifier(): StyleSheetModifier {
             if (emptyIsWhereSelector || viewTransitionSelector) {
                 selectorText = '.darkreader-unsupported-selector';
             }
-            // ::picker(select) becomes ::picker,
-            // but cannot be parsed later (Chrome bug)
             if (isChromium && selectorText.endsWith('::picker')) {
                 selectorText = selectorText.replaceAll('::picker', '::picker(select)');
             }

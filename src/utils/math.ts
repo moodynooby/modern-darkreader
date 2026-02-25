@@ -24,7 +24,6 @@ export function clamp(x: number, min: number, max: number): number {
     return Math.min(max, Math.max(min, x));
 }
 
-// Note: the caller is responsible for ensuring that matrix dimensions make sense
 export function multiplyMatrices<M extends Matrix>(m1: Matrix5x5, m2: Matrix5x5 | Matrix5x1): M {
     const result: number[][] = [];
     for (let i = 0, len = m1.length; i < len; i++) {

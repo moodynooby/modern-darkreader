@@ -18,8 +18,6 @@ function Loader({complete = false}: LoaderProps) {
     const context = getContext();
     const {state, setState} = useState<LoaderState>({finished: false, errorOccured: false});
 
-    // Add a setTimeout for 3 seconds(in which the UI should be loaded already)
-    // after the 3 seconds show a generic error message that the UI couldn't be loaded.
     if (!state.errorOccured && !complete) {
         context.store.loaderTimeoutID = setTimeout(() => {
             setState({errorOccured: true});
