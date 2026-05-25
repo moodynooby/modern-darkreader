@@ -12,7 +12,7 @@ import {logWarn, logInfo} from '../utils/log';
 
 import {cssURLRegex, getCSSURLValue, getCSSBaseBath} from './css-rules';
 import type {ImageDetails} from './image';
-import {getImageDetails, getFilteredImageURL, cleanImageProcessingCache, requestBlobURLCheck, isBlobURLCheckResultReady, tryConvertDataURLToBlobURL} from './image';
+import {getImageDetails, getFilteredImageURL, getSolidColorImageURL, cleanImageProcessingCache, requestBlobURLCheck, isBlobURLCheckResultReady, tryConvertDataURLToBlobURL} from './image';
 import {modifyBackgroundColor, modifyBorderColor, modifyForegroundColor, modifyGradientColor, modifyShadowColor, clearColorModificationCache} from './modify-colors';
 import {getSheetScope} from './style-scope';
 import type {CSSVariableModifier, VariablesStore} from './variables';
@@ -47,6 +47,17 @@ function getPriority(ruleStyle: CSSStyleDeclaration, property: string) {
     return Boolean(ruleStyle && ruleStyle.getPropertyPriority(property));
 }
 
+function canFilterImage(url: string): boolean {
+    if (url.startsWith('data:')) {
+        return true;
+    }
+    try {
+        return new URL(url).origin === location.origin;
+    } catch {
+        return false;
+    }
+}
+
 const bgPropsToCopy = [
     'background-clip',
     'background-position',
@@ -66,7 +77,7 @@ export function getModifiableCSSDeclaration(
     if (property.startsWith('--')) {
         modifier = getVariableModifier(variablesStore, property, value, rule, ignoreImageSelectors, isCancelled!);
     } else if (value.includes('var(')) {
-        modifier = getVariableDependantModifier(variablesStore, property, value);
+        modifier = getVariableDependantModifier(variablesStore, property, value, rule);
     } else if (property === 'color-scheme') {
         modifier = getColorSchemeModifier();
     } else if (property === 'scrollbar-color') {
@@ -80,10 +91,11 @@ export function getModifiableCSSDeclaration(
         property === 'stroke' ||
         property === 'stop-color'
     ) {
-        if (property.startsWith('border') && property !== 'border-color' && value === 'initial') {
+        if (property.startsWith('border') && property !== 'border-color' && (value === 'initial' || value === 'currentcolor')) {
             const borderSideProp = property.substring(0, property.length - 6);
             const borderSideVal = rule.style.getPropertyValue(borderSideProp);
-            if (borderSideVal.startsWith('0px') || borderSideVal === 'none') {
+            const borderStyleVal = rule.style.getPropertyValue('border-style');
+            if (borderSideVal.startsWith('0px') || borderSideVal === 'none' || borderStyleVal === 'none') {
                 property = borderSideProp;
                 modifier = borderSideVal;
             } else {
@@ -93,7 +105,11 @@ export function getModifiableCSSDeclaration(
             modifier = getColorModifier(property, value, rule);
         }
     } else if (property === 'background-image' || property === 'list-style-image') {
-        modifier = getBgImageModifier(value, rule, ignoreImageSelectors, isCancelled!);
+        const selectorText = rule.selectorText;
+        const pushFilter = selectorText
+            ? (type: FilterType) => pushFilterSelector(selectorText, type)
+            : null;
+        modifier = getBgImageModifier(value, rule, ignoreImageSelectors, isCancelled!, pushFilter);
     } else if (property.includes('shadow')) {
         modifier = getShadowModifier(value);
     } else if (bgPropsToCopy.includes(property) && value !== 'initial') {
@@ -256,6 +272,26 @@ export function createFallbackFactory(fn: (colors: typeof colorModifiers) => Fal
     fallbackFactory = fn(colorModifiers);
 }
 
+export type FilterType = 'invert' | 'dim' | 'none';
+
+let addFilterSelector: ((selector: string, type: FilterType) => void) | null = null;
+
+export function setFilterSelectorHandler(fn: (selector: string, type: FilterType) => void): void {
+    addFilterSelector = fn;
+}
+
+export function pushFilterSelector(selector: string, type: FilterType): void {
+    if (selector && addFilterSelector) {
+        addFilterSelector(selector, type);
+    }
+}
+
+const filterCompatibleProps = new Set<string>(['background', 'background-image', 'list-style-image']);
+
+export function isFilterCompatibleProp(property: string): boolean {
+    return filterCompatibleProps.has(property);
+}
+
 const unparsableColors = new Set([
     'inherit',
     'transparent',
@@ -378,6 +414,7 @@ export function getBgImageModifier(
     rule: CSSStyleRule,
     ignoreImageSelectors: string[],
     isCancelled: () => boolean,
+    pushFilter: ((type: FilterType) => void) | null = null,
 ): string | CSSValueModifier | null {
     try {
         if (shouldIgnoreImage(rule.selectorText, ignoreImageSelectors)) {
@@ -537,27 +574,46 @@ export function getBgImageModifier(
         };
 
         const getBgImageValue = (imageDetails: ImageDetails, theme: Theme) => {
-            const {isDark, isLight, isTransparent, isLarge, width} = imageDetails;
-            let result: string | null;
+            const {isDark, isLight, isTransparent, isLarge, solidColor, width} = imageDetails;
+            let result: string | null = null;
             const logSrc = imageDetails.src.startsWith('data:') ? 'data:' : imageDetails.src;
             if (isLarge && isLight && !isTransparent && theme.mode === 1) {
                 logInfo(`Hiding large light image ${logSrc}`);
                 result = 'none';
             } else if (isDark && isTransparent && theme.mode === 1 && width > 2) {
                 logInfo(`Inverting dark image ${logSrc}`);
-                const inverted = getFilteredImageURL(imageDetails, {...theme, sepia: clamp(theme.sepia + 10, 0, 100)});
-                result = `url("${inverted}")`;
+                if (canFilterImage(imageDetails.src)) {
+                    const inverted = getFilteredImageURL(imageDetails, {...theme, sepia: clamp(theme.sepia + 10, 0, 100)});
+                    result = `url("${inverted}")`;
+                } else {
+                    pushFilter?.('invert');
+                }
             } else if (isLight && !isTransparent && theme.mode === 1) {
-                logInfo(`Dimming light image ${logSrc}`);
-                const dimmed = getFilteredImageURL(imageDetails, theme);
-                result = `url("${dimmed}")`;
-            } else if (theme.mode === 0 && isLight) {
+                if (solidColor) {
+                    logInfo(`Replacing image with a solid color ${logSrc}`);
+                    const darkColor = modifyBackgroundColor(solidColor, theme, false);
+                    const solid = getSolidColorImageURL(imageDetails, darkColor);
+                    result = `url("${solid}")`;
+                } else if (canFilterImage(imageDetails.src)) {
+                    logInfo(`Inverting light image ${logSrc}`);
+                    const inverted = getFilteredImageURL(imageDetails, theme);
+                    result = `url("${inverted}")`;
+                } else {
+                    pushFilter?.('invert');
+                }
+            } else if (theme.mode === 0 && isLight && imageDetails.dataURL) {
                 logInfo(`Applying filter to image ${logSrc}`);
-                const filtered = getFilteredImageURL(imageDetails, {...theme, brightness: clamp(theme.brightness - 10, 5, 200), sepia: clamp(theme.sepia + 10, 0, 100)});
-                result = `url("${filtered}")`;
+                if (canFilterImage(imageDetails.src)) {
+                    const filtered = getFilteredImageURL(imageDetails, {...theme, brightness: clamp(theme.brightness - 10, 5, 200), sepia: clamp(theme.sepia + 10, 0, 100)});
+                    result = `url("${filtered}")`;
+                } else {
+                    pushFilter?.('dim');
+                }
             } else {
+                if (theme.mode === 1 && !canFilterImage(imageDetails.src)) {
+                    pushFilter?.('none');
+                }
                 logInfo(`Not modifying the image ${logSrc}`);
-                result = null;
             }
             return result;
         };
@@ -698,8 +754,9 @@ function getVariableDependantModifier(
     variablesStore: VariablesStore,
     prop: string,
     value: string,
+    rule: CSSStyleRule,
 ) {
-    return variablesStore.getModifierForVarDependant(prop, value);
+    return variablesStore.getModifierForVarDependant(prop, value, rule);
 }
 
 export function cleanModificationCache(): void {

@@ -145,9 +145,9 @@ export function getInlineOverrideStyle(): string {
 }
 
 function getInlineStyleElements(root: Node) {
-    const results: Element[] = [];
+    const results: HTMLElement[] = [];
     if (root instanceof Element && root.matches(INLINE_STYLE_SELECTOR)) {
-        results.push(root);
+        results.push(root as HTMLElement);
     }
     if (root instanceof Element || (isShadowDomSupported && root instanceof ShadowRoot) || root instanceof Document) {
         push(results, root.querySelectorAll(INLINE_STYLE_SELECTOR));
@@ -189,10 +189,10 @@ function deepWatchForInlineStyles(
             elementStyleDidChange(el);
         });
         iterateShadowHosts(node, (n) => {
-            if (discoveredNodes.has(node)) {
+            if (discoveredNodes.has(n)) {
                 return;
             }
-            discoveredNodes.add(node);
+            discoveredNodes.add(n);
             shadowRootDiscovered(n.shadowRoot!);
             deepWatchForInlineStyles(n.shadowRoot!, elementStyleDidChange, shadowRootDiscovered);
         });
@@ -344,6 +344,8 @@ export function overrideInlineStyle(element: HTMLElement, theme: Theme, ignoreIn
         if (Date.now() - elementsLastChanges.get(element)! < LOOP_DETECTION_THRESHOLD) {
             const cycles = elementsLoopCycles.get(element) ?? 0;
             elementsLoopCycles.set(element, cycles + 1);
+        } else {
+            elementsLoopCycles.delete(element);
         }
         if ((elementsLoopCycles.get(element) ?? 0) >= MAX_LOOP_CYCLES) {
             return;

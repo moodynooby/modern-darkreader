@@ -124,4 +124,4 @@ function Body(
     );
 }
 
-export default compose(Body, withState, withForms);
+export default compose(Body as any, withState, withForms);

@@ -14,8 +14,8 @@ const {PORT} = reload;
 import {createTask} from './task.js';
 
 /** @typedef {import('chokidar').FSWatcher} FSWatcher */
-/** @typedef {import('./types').JSEntry} JSEntry */
-/** @typedef {import('./types').TaskOptions} TaskOptions */
+/** @typedef {import('./types.d.ts').JSEntry} JSEntry */
+/** @typedef {import('./types.d.ts').TaskOptions} TaskOptions */
 
 /** @type {JSEntry[]} */
 const jsEntries = [
@@ -104,11 +104,14 @@ async function bundleJS(/** @type {JSEntry} */entry, platform, debug, watch, log
         },
         plugins: [
             // TODO(anton): remove this once Firefox supports tab.eval() via WebDriver BiDi
+            // @ts-expect-error This expression is not callable
             rollupPluginReplace({
                 preventAssignment: true,
                 'eval(': 'void(',
             }),
+            // @ts-expect-error This expression is not callable
             rollupPluginNodeResolve(),
+            // @ts-expect-error This expression is not callable
             rollupPluginTypescript({
                 rootDir: absolutePath('.'),
                 typescript,
@@ -119,6 +122,7 @@ async function bundleJS(/** @type {JSEntry} */entry, platform, debug, watch, log
                 noImplicitAny: debug ? false : true,
                 noUnusedLocals: debug ? false : true,
                 strictNullChecks: debug ? false : true,
+                strictPropertyInitialization: false,
                 removeComments: debug ? false : true,
                 sourceMap: debug ? true : false,
                 inlineSources: debug ? true : false,
@@ -130,6 +134,7 @@ async function bundleJS(/** @type {JSEntry} */entry, platform, debug, watch, log
                     '@plus/*': ['./stubs/*'],
                 },
             }),
+            // @ts-expect-error This expression is not callable
             rollupPluginReplace({
                 preventAssignment: true,
                 ...replace,
@@ -187,6 +192,7 @@ export function createBundleJSTask(jsEntries) {
 
     /** @type {(changedFiles: string[], watcher: FSWatcher, platforms: any) => Promise<void>} */
     const onChange = async (changedFiles, watcher, initialPlatforms) => {
+        /** @type {any} */
         let platforms = {};
         const connectedBrowsers = reload.getConnectedBrowsers();
         if (connectedBrowsers.includes('chrome')) {

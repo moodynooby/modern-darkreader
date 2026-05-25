@@ -5,9 +5,8 @@ import type {RGBA, HSLA} from '../../utils/color';
 import {parseToHSLWithCache, rgbToHSL, hslToRGB, rgbToString, rgbToHexString} from '../../utils/color';
 import {scale} from '../../utils/math';
 
-interface ColorFunction {
-    (hsl: HSLA): HSLA;
-}
+
+type HSLModifyFunction = ((hsl: HSLA) => HSLA) | ((hsl: HSLA, pole: HSLA) => HSLA) | ((hsl: HSLA, pole: HSLA, anotherPole: HSLA) => HSLA);
 
 function getBgPole(theme: Theme) {
     const isDarkScheme = theme.mode === 1;
@@ -21,7 +20,7 @@ function getFgPole(theme: Theme) {
     return theme[prop];
 }
 
-const colorModificationCache = new Map<ColorFunction, Map<string, string>>();
+const colorModificationCache = new Map<HSLModifyFunction, Map<string, string>>();
 
 export function clearColorModificationCache(): void {
     colorModificationCache.clear();
@@ -41,7 +40,7 @@ export const themeCacheKeys: Array<keyof Theme> = [
     'lightSchemeTextColor',
 ];
 
-function getCacheId(rgb: RGBA, theme: Theme): string {
+function getCacheId(rgb: RGBA, theme: Theme, poleA?: string, poleB?: string): string {
     let resultId = '';
     rgbCacheKeys.forEach((key) => {
         resultId += `${rgb[key]};`;
@@ -49,10 +48,11 @@ function getCacheId(rgb: RGBA, theme: Theme): string {
     themeCacheKeys.forEach((key) => {
         resultId += `${theme[key]};`;
     });
+    resultId += `${poleA};${poleB}`;
     return resultId;
 }
 
-function modifyColorWithCache(rgb: RGBA, theme: Theme, modifyHSL: (hsl: HSLA, pole?: HSLA | null, anotherPole?: HSLA | null) => HSLA, poleColor?: string, anotherPoleColor?: string): string {
+function modifyColorWithCache(rgb: RGBA, theme: Theme, modifyHSL: HSLModifyFunction, poleColor?: string, anotherPoleColor?: string): string {
     let fnCache: Map<string, string>;
     if (colorModificationCache.has(modifyHSL)) {
         fnCache = colorModificationCache.get(modifyHSL)!;
@@ -60,7 +60,7 @@ function modifyColorWithCache(rgb: RGBA, theme: Theme, modifyHSL: (hsl: HSLA, po
         fnCache = new Map();
         colorModificationCache.set(modifyHSL, fnCache);
     }
-    const id = getCacheId(rgb, theme);
+    const id = getCacheId(rgb, theme, poleColor, anotherPoleColor);
     if (fnCache.has(id)) {
         return fnCache.get(id)!;
     }
@@ -68,7 +68,7 @@ function modifyColorWithCache(rgb: RGBA, theme: Theme, modifyHSL: (hsl: HSLA, po
     const hsl = rgbToHSL(rgb);
     const pole = poleColor == null ? null : parseToHSLWithCache(poleColor);
     const anotherPole = anotherPoleColor == null ? null : parseToHSLWithCache(anotherPoleColor);
-    const modified = modifyHSL(hsl, pole, anotherPole);
+    const modified = modifyHSL(hsl, pole!, anotherPole!);
     const {r, g, b, a} = hslToRGB(modified);
     const matrix = createFilterMatrix({...theme, mode: 0});
     const [rf, gf, bf] = applyColorMatrix([r, g, b], matrix);

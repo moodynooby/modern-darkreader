@@ -207,6 +207,7 @@ export class Extension {
     static async start(): Promise<void> {
         Extension.init();
         await TabManager.cleanState();
+        await DevTools.init(Extension.onSettingsChanged);
         await Promise.all([
             ConfigManager.load({local: true}),
             Extension.MV3syncSystemColorStateManager(null),
@@ -375,7 +376,7 @@ export class Extension {
             return;
         }
         Extension.wasLastColorSchemeDark = isDark;
-        Extension.MV3syncSystemColorStateManager(isDark);
+        await Extension.MV3syncSystemColorStateManager(isDark);
         await Extension.loadData();
         if (UserStorage.settings.automation.mode !== AutomationMode.SYSTEM) {
             return;
@@ -583,7 +584,7 @@ export class Extension {
                     };
                 }
                 case ThemeEngine.dynamicTheme: {
-                    const fixes = getDynamicThemeFixesFor(url, isTopFrame, ConfigManager.DYNAMIC_THEME_FIXES_RAW!, ConfigManager.DYNAMIC_THEME_FIXES_INDEX!, UserStorage.settings.enableForPDF);
+                    const fixes = getDynamicThemeFixesFor(url, ConfigManager.DYNAMIC_THEME_FIXES_RAW!, ConfigManager.DYNAMIC_THEME_FIXES_INDEX!, UserStorage.settings.enableForPDF);
                     return {
                         type: MessageTypeBGtoCS.ADD_DYNAMIC_THEME,
                         data: {

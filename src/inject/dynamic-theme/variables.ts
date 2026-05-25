@@ -5,8 +5,8 @@ import {getParenthesesRange} from '../../utils/text';
 
 import {iterateCSSRules, iterateCSSDeclarations} from './css-rules';
 import {modifyBackgroundColor, modifyBorderColor, modifyForegroundColor} from './modify-colors';
-import {getBgImageModifier, getShadowModifierWithInfo} from './modify-css';
-import type {CSSValueModifier} from './modify-css';
+import {getBgImageModifier, getShadowModifierWithInfo, isFilterCompatibleProp, pushFilterSelector} from './modify-css';
+import type {CSSValueModifier, FilterType} from './modify-css';
 
 export interface ModifiedVarDeclaration {
     property: string;
@@ -41,6 +41,7 @@ export class VariablesStore {
     private changedTypeVars = new Set<string>();
     private typeChangeSubscriptions = new Map<string, Set<() => void>>();
     private unstableVarValues = new Map<string, string>();
+    private varFilterTypes = new Map<string, FilterType>();
     private onRootVariableDefined: () => void;
 
     clear(): void {
@@ -56,6 +57,7 @@ export class VariablesStore {
         this.changedTypeVars.clear();
         this.typeChangeSubscriptions.clear();
         this.unstableVarValues.clear();
+        this.varFilterTypes.clear();
     }
 
     private isVarType(varName: string, typeNum: number) {
@@ -192,7 +194,13 @@ export class VariablesStore {
                             (fallback) => tryModifyBgColor(fallback, theme),
                         );
                     }
-                    const bgModifier = getBgImageModifier(modifiedValue, rule, ignoredImgSelectors, isCancelled);
+                    const bgModifier = getBgImageModifier(
+                        modifiedValue,
+                        rule,
+                        ignoredImgSelectors,
+                        isCancelled,
+                        (type) => this.setVarFilterType(varName, type),
+                    );
                     modifiedValue = typeof bgModifier === 'function' ? bgModifier(theme) : bgModifier!;
                     declarations.push({
                         property,
@@ -228,7 +236,10 @@ export class VariablesStore {
         };
     }
 
-    getModifierForVarDependant(property: string, sourceValue: string): CSSValueModifier | null {
+    getModifierForVarDependant(property: string, sourceValue: string, rule?: CSSStyleRule): CSSValueModifier | null {
+        if (rule && rule.selectorText && isFilterCompatibleProp(property)) {
+            this.watchFilterVars(sourceValue, rule.selectorText);
+        }
         const isConstructedColor = sourceValue.match(/^\s*(rgb|hsl)a?\(/);
         const isSimpleConstructedColor = sourceValue.match(/^rgba?\(var\(--[\-_A-Za-z0-9]+\)(\s*,?\/?\s*0?\.\d+)?\)$/);
         if (isConstructedColor && !isSimpleConstructedColor) {
@@ -342,6 +353,46 @@ export class VariablesStore {
         if (this.typeChangeSubscriptions.has(varName)) {
             this.typeChangeSubscriptions.get(varName)!.delete(callback);
         }
+    }
+
+    private setVarFilterType(varName: string, type: FilterType) {
+        if (this.varFilterTypes.get(varName) === type) {
+            return;
+        }
+        this.varFilterTypes.set(varName, type);
+        const subs = this.typeChangeSubscriptions.get(varName);
+        if (subs && subs.size > 0) {
+            subs.forEach((callback) => callback());
+        }
+    }
+
+    private pushFilterSelectorsForValue(sourceValue: string, selector: string) {
+        const directRefs = new Set<string>();
+        iterateVarDependencies(sourceValue, (v) => directRefs.add(v));
+        const allRefs = new Set<string>();
+        directRefs.forEach((v) => {
+            allRefs.add(v);
+            this.iterateVarRefs(v, (ref) => allRefs.add(ref));
+        });
+        allRefs.forEach((v) => {
+            const type = this.varFilterTypes.get(v);
+            if (type) {
+                pushFilterSelector(selector, type);
+            }
+        });
+    }
+
+    private watchFilterVars(sourceValue: string, selector: string) {
+        const directRefs = new Set<string>();
+        iterateVarDependencies(sourceValue, (v) => directRefs.add(v));
+        const allRefs = new Set<string>();
+        directRefs.forEach((v) => {
+            allRefs.add(v);
+            this.iterateVarRefs(v, (ref) => allRefs.add(ref));
+        });
+        this.pushFilterSelectorsForValue(sourceValue, selector);
+        const callback = () => this.pushFilterSelectorsForValue(sourceValue, selector);
+        allRefs.forEach((v) => this.subscribeForVarTypeChange(v, callback));
     }
 
     private collectVariablesAndVarDep() {

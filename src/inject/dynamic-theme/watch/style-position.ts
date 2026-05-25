@@ -220,7 +220,7 @@ export function watchForStylePositions(
         });
         hosts.forEach((node) => handledShadowHosts.add(node));
     });
-    document.addEventListener('__darkreader__isDefined', handleIsDefined);
+    document.addEventListener('__darkreader__isDefined', handleIsDefined as EventListener);
     collectUndefinedElements(document);
 
     addDOMReadyListener(() => {
