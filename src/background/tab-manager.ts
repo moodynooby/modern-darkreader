@@ -257,10 +257,9 @@ export default class TabManager {
         }
 
         if (__CHROMIUM_MV3__) {
-
             chrome.tabs.sendMessage<MessageBGtoCS>(tabId, message, {documentId}).catch(() =>
                 chrome.tabs.sendMessage<MessageBGtoCS>(tabId, message, {frameId, documentId}).catch(() =>
-                    chrome.tabs.sendMessage<MessageBGtoCS>(tabId, message, {documentId}).catch(() => {  })
+                    chrome.tabs.sendMessage<MessageBGtoCS>(tabId, message, {documentId}).catch(() => { })
                 )
             );
             return;

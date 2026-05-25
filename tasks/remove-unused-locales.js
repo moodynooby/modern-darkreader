@@ -66,7 +66,7 @@ async function findUsedIds() {
                 }
             } else if (entry.name.endsWith('.ts') || entry.name.endsWith('.tsx') || entry.name.endsWith('.json') || entry.name.endsWith('.js')) {
                 const content = await readFile(res);
-                
+
                 const getLocalMessageRegex = /getLocalMessage\(['"]([a-zA-Z0-9_]+)['"]\)/g;
                 let match;
                 while ((match = getLocalMessageRegex.exec(content)) !== null) {
@@ -90,14 +90,14 @@ async function removeUnusedLocales() {
     const usedIds = await findUsedIds();
     log(`Found ${usedIds.size} used message IDs.`);
 
-    const localeFiles = (await fs.readdir(LOCALES_DIR)).filter(f => f.endsWith('.config'));
+    const localeFiles = (await fs.readdir(LOCALES_DIR)).filter((f) => f.endsWith('.config'));
 
     for (const file of localeFiles) {
         const filePath = path.join(LOCALES_DIR, file);
         log(`Processing ${file}...`);
         const content = await readFile(filePath);
         const messages = parseLocale(content);
-        
+
         let removedCount = 0;
         const cleanedMessages = new Map();
 
@@ -120,7 +120,7 @@ async function removeUnusedLocales() {
     log.ok('Unused locales removed successfully.');
 }
 
-removeUnusedLocales().catch(err => {
+removeUnusedLocales().catch((err) => {
     console.error(err);
     process.exit(1);
 });

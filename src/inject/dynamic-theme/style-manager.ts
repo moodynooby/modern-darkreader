@@ -1,19 +1,19 @@
-import type { Theme } from '../../definitions';
-import { forEach } from '../../utils/array';
-import { removeCSSComments } from '../../utils/css-text/css-text';
-import { loadAsText } from '../../utils/network';
-import { isShadowDomSupported, isSafari, isFirefox } from '../../utils/platform';
-import { getMatchesWithOffsets } from '../../utils/text';
-import { getAbsoluteURL, isRelativeHrefOnAbsolutePath } from '../../utils/url';
-import { readCSSFetchCache, writeCSSFetchCache } from '../cache';
-import { watchForNodePosition, removeNode, iterateShadowHosts, addReadyStateCompleteListener } from '../utils/dom';
-import { logInfo, logWarn } from '../utils/log';
+import type {Theme} from '../../definitions';
+import {forEach} from '../../utils/array';
+import {removeCSSComments} from '../../utils/css-text/css-text';
+import {loadAsText} from '../../utils/network';
+import {isShadowDomSupported, isSafari, isFirefox} from '../../utils/platform';
+import {getMatchesWithOffsets} from '../../utils/text';
+import {getAbsoluteURL, isRelativeHrefOnAbsolutePath} from '../../utils/url';
+import {readCSSFetchCache, writeCSSFetchCache} from '../cache';
+import {watchForNodePosition, removeNode, iterateShadowHosts, addReadyStateCompleteListener} from '../utils/dom';
+import {logInfo, logWarn} from '../utils/log';
 
-import { replaceCSSRelativeURLsWithAbsolute, replaceCSSFontFace, getCSSURLValue, cssImportRegex, getCSSBaseBath, ignoredMedia } from './css-rules';
-import { getStyleInjectionMode, injectStyleAway } from './injection';
-import { bgFetch } from './network';
-import { createStyleSheetModifier } from './stylesheet-modifier';
-import { createSheetWatcher } from './watch/sheet-changes';
+import {replaceCSSRelativeURLsWithAbsolute, replaceCSSFontFace, getCSSURLValue, cssImportRegex, getCSSBaseBath, ignoredMedia} from './css-rules';
+import {getStyleInjectionMode, injectStyleAway} from './injection';
+import {bgFetch} from './network';
+import {createStyleSheetModifier} from './stylesheet-modifier';
+import {createSheetWatcher} from './watch/sheet-changes';
 
 declare global {
     interface Document {
@@ -101,7 +101,7 @@ export function getManageableStyles(node: Node | null, results: StyleElement[] =
         );
         if (
             deep && (
-                (node as Element).children?.length > 0 || 
+                (node as Element).children?.length > 0 ||
                 (node as Element).shadowRoot
             )
         ) {
@@ -122,7 +122,7 @@ export function cleanLoadingLinks(): void {
     rejectorsForLoadingLinks.clear();
 }
 
-export function manageStyle(element: StyleElement, { update, loadingStart, loadingEnd }: { update: () => void; loadingStart: () => void; loadingEnd: () => void }): StyleManager {
+export function manageStyle(element: StyleElement, {update, loadingStart, loadingEnd}: { update: () => void; loadingStart: () => void; loadingEnd: () => void }): StyleManager {
     const inMode = getStyleInjectionMode();
 
     let syncStyle: HTMLStyleElement | SVGStyleElement | null = null;
@@ -136,7 +136,7 @@ export function manageStyle(element: StyleElement, { update, loadingStart, loadi
         syncStyle = prevStyles.find((el) => el.matches('.darkreader--sync') && !syncStyleSet.has(el)) || null;
     }
 
-    let corsCopyPositionWatcher: ReturnType<typeof watchForNodePosition> | null = null;
+    const corsCopyPositionWatcher: ReturnType<typeof watchForNodePosition> | null = null;
     let syncStylePositionWatcher: ReturnType<typeof watchForNodePosition> | null = null;
 
     let cancelAsyncOperations = false;
@@ -153,7 +153,7 @@ export function manageStyle(element: StyleElement, { update, loadingStart, loadi
             update();
         }
     });
-    const observerOptions: MutationObserverInit = { attributes: true, childList: true, subtree: true, characterData: true };
+    const observerOptions: MutationObserverInit = {attributes: true, childList: true, subtree: true, characterData: true};
 
     function containsCSSImport() {
         if (!(element instanceof HTMLStyleElement)) {
@@ -354,7 +354,7 @@ export function manageStyle(element: StyleElement, { update, loadingStart, loadi
             });
             return null;
         }
-        return { rules };
+        return {rules};
     }
 
     let forceRenderStyle = false;
@@ -535,8 +535,8 @@ async function linkLoading(link: HTMLLinkElement, loadingId: number) {
             cleanUp();
             reject();
         });
-        link.addEventListener('load', onLoad, { passive: true });
-        link.addEventListener('error', onError, { passive: true });
+        link.addEventListener('load', onLoad, {passive: true});
+        link.addEventListener('error', onError, {passive: true});
         if (!link.href) {
             onError();
         }
@@ -562,7 +562,7 @@ async function loadText(url: string) {
     if (parsedURL.origin === location.origin) {
         text = await loadAsText(url, 'text/css', location.origin);
     } else {
-        text = await bgFetch({ url, responseType: 'text', mimeType: 'text/css', origin: location.origin });
+        text = await bgFetch({url, responseType: 'text', mimeType: 'text/css', origin: location.origin});
     }
     if (parsedURL.origin === location.origin) {
         writeCSSFetchCache(url, text);

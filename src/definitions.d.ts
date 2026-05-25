@@ -1,20 +1,20 @@
-import type { FilterMode } from "./generators/css-filter";
-import type { ThemeEngine } from "./generators/theme-engines";
-import type { AutomationMode } from "./utils/automation";
-import type { ParsedColorSchemeConfig } from "./utils/colorscheme-parser";
+import type {FilterMode} from './generators/css-filter';
+import type {ThemeEngine} from './generators/theme-engines';
+import type {AutomationMode} from './utils/automation';
+import type {ParsedColorSchemeConfig} from './utils/colorscheme-parser';
 import type {
-  DebugMessageTypeBGtoCS,
-  DebugMessageTypeBGtoUI,
-  DebugMessageTypeCStoBG,
-  MessageTypeBGtoCS,
-  MessageTypeBGtoUI,
-  MessageTypeCStoBG,
-  MessageTypeCStoUI,
-  MessageTypeUItoBG,
-  MessageTypeUItoCS,
-} from "./utils/message";
+    DebugMessageTypeBGtoCS,
+    DebugMessageTypeBGtoUI,
+    DebugMessageTypeCStoBG,
+    MessageTypeBGtoCS,
+    MessageTypeBGtoUI,
+    MessageTypeCStoBG,
+    MessageTypeCStoUI,
+    MessageTypeUItoBG,
+    MessageTypeUItoCS,
+} from './utils/message';
 
-export type ColorScheme = "dark" | "light";
+export type ColorScheme = 'dark' | 'light';
 
 export interface ExtensionData {
   isEnabled: boolean;
@@ -23,12 +23,12 @@ export interface ExtensionData {
   settings: UserSettings;
   shortcuts: Shortcuts;
   colorScheme: ParsedColorSchemeConfig;
-  forcedScheme: "dark" | "light" | null;
+  forcedScheme: 'dark' | 'light' | null;
   activeTab: TabInfo;
   uiHighlights: string[];
 }
 
-export type DevFixType = "detector" | "dynamic" | "filter" | "static";
+export type DevFixType = 'detector' | 'dynamic' | 'filter' | 'static';
 
 export type DevToolsData = Record<DevFixType, string>;
 
@@ -72,8 +72,8 @@ export interface Theme {
   darkSchemeTextColor: string;
   lightSchemeBackgroundColor: string;
   lightSchemeTextColor: string;
-  scrollbarColor: "" | "auto" | string;
-  selectionColor: "" | "auto" | string;
+  scrollbarColor: '' | 'auto' | string;
+  selectionColor: '' | 'auto' | string;
   styleSystemControls: boolean;
   lightColorScheme: string;
   darkColorScheme: string;
@@ -96,7 +96,7 @@ export interface ThemePreset {
 export interface Automation {
   enabled: boolean;
   mode: AutomationMode;
-  behavior: "OnOff" | "Scheme";
+  behavior: 'OnOff' | 'Scheme';
 }
 
 export interface UserSettings {
@@ -250,4 +250,4 @@ export interface StaticTheme {
   noCommon?: boolean;
 }
 
-export type Command = "toggle" | "addSite" | "switchEngine";
+export type Command = 'toggle' | 'addSite' | 'switchEngine';

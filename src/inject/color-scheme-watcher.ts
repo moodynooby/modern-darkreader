@@ -1,37 +1,37 @@
-import type { MessageBGtoCS, MessageCStoBG } from "../definitions";
+import type {MessageBGtoCS, MessageCStoBG} from '../definitions';
 import {
-  isSystemDarkModeEnabled,
-  runColorSchemeChangeDetector,
-  stopColorSchemeChangeDetector,
-} from "../utils/media-query";
-import { MessageTypeCStoBG } from "../utils/message";
+    isSystemDarkModeEnabled,
+    runColorSchemeChangeDetector,
+    stopColorSchemeChangeDetector,
+} from '../utils/media-query';
+import {MessageTypeCStoBG} from '../utils/message';
 import {
-  setDocumentVisibilityListener,
-  documentIsVisible,
-  removeDocumentVisibilityListener,
-} from "../utils/visibility";
+    setDocumentVisibilityListener,
+    documentIsVisible,
+    removeDocumentVisibilityListener,
+} from '../utils/visibility';
 
 function cleanup() {
-  stopColorSchemeChangeDetector();
-  removeDocumentVisibilityListener();
+    stopColorSchemeChangeDetector();
+    removeDocumentVisibilityListener();
 }
 
 function sendMessage(message: MessageCStoBG): void {
-  const responseHandler = (
-    response: MessageBGtoCS | "unsupportedSender" | undefined,
-  ) => {
-    if (response === "unsupportedSender") {
-      cleanup();
-    }
-  };
+    const responseHandler = (
+        response: MessageBGtoCS | 'unsupportedSender' | undefined,
+    ) => {
+        if (response === 'unsupportedSender') {
+            cleanup();
+        }
+    };
 
-  try {
-    const promise = chrome.runtime.sendMessage<
+    try {
+        const promise = chrome.runtime.sendMessage<
       MessageCStoBG,
-      MessageBGtoCS | "unsupportedSender"
+      MessageBGtoCS | 'unsupportedSender'
     >(message);
-    promise.then(responseHandler).catch(cleanup);
-  } catch (error) {
+        promise.then(responseHandler).catch(cleanup);
+    } catch (error) {
     /*
      * We get here if Background context is unreachable which occurs when:
      *  - extension was disabled
@@ -42,29 +42,29 @@ function sendMessage(message: MessageCStoBG): void {
      *
      * Regular message passing errors are returned via rejected promise or runtime.lastError.
      */
-    if ((error as Error).message === "Extension context invalidated.") {
-      console.log("Dark Reader: instance of old CS detected, cleaning up.");
-      cleanup();
-    } else {
-      console.log("Dark Reader: unexpected error during message passing.");
+        if ((error as Error).message === 'Extension context invalidated.') {
+            console.log('Dark Reader: instance of old CS detected, cleaning up.');
+            cleanup();
+        } else {
+            console.log('Dark Reader: unexpected error during message passing.');
+        }
     }
-  }
 }
 
 function notifyOfColorScheme(isDark: boolean): void {
-  sendMessage({
-    type: MessageTypeCStoBG.COLOR_SCHEME_CHANGE,
-    data: { isDark },
-  });
+    sendMessage({
+        type: MessageTypeCStoBG.COLOR_SCHEME_CHANGE,
+        data: {isDark},
+    });
 }
 
 function updateEventListeners(): void {
-  notifyOfColorScheme(isSystemDarkModeEnabled());
-  if (documentIsVisible()) {
-    runColorSchemeChangeDetector(notifyOfColorScheme);
-  } else {
-    stopColorSchemeChangeDetector();
-  }
+    notifyOfColorScheme(isSystemDarkModeEnabled());
+    if (documentIsVisible()) {
+        runColorSchemeChangeDetector(notifyOfColorScheme);
+    } else {
+        stopColorSchemeChangeDetector();
+    }
 }
 
 setDocumentVisibilityListener(updateEventListeners);

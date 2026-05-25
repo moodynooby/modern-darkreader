@@ -1,0 +1,3 @@
+allowBuilds:
+  spawn-sync: true
+  unrs-resolver: true

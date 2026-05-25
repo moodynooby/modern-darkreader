@@ -921,7 +921,7 @@ function setupDocumentPiPFontFix(): void {
             }
             injectFontCSS(fontCSS);
         });
-        observer.observe(pipDoc, {childList: true, subtree: true})
+        observer.observe(pipDoc, {childList: true, subtree: true});
         cleaners.push(() => observer.disconnect());
         (docPiP.window as Window).addEventListener('unload', () => observer.disconnect());
     }

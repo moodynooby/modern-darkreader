@@ -48,7 +48,7 @@ export default function VirtualScroll(props: VirtualScrollProps) {
         if (scrollToIndex >= 0) {
             root.scrollTop = scrollToIndex * itemHeight;
         }
-        const containerHeight = document.documentElement.clientHeight - root.getBoundingClientRect().top; 
+        const containerHeight = document.documentElement.clientHeight - root.getBoundingClientRect().top;
 
         let focusedIndex = -1;
         if (document.activeElement) {
