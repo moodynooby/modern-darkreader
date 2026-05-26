@@ -4,10 +4,8 @@ import type {
     TabInfo,
     MessageUItoBG,
     UserSettings,
-    DevToolsData,
     MessageCStoBG,
     MessageBGtoUI,
-    DevFixType,
 } from '../definitions';
 import {MessageTypeBGtoUI, MessageTypeUItoBG} from '../utils/message';
 import {isFirefox} from '../utils/platform';
@@ -17,14 +15,10 @@ import {ASSERT} from './utils/log';
 
 export interface ExtensionAdapter {
   collect: () => Promise<ExtensionData>;
-  collectDevToolsData: () => Promise<DevToolsData>;
+  changeSettings: (settings: Partial<UserSettings>) => Promise<void>;
   setTheme: (theme: Partial<Theme>) => void;
   toggleActiveTab: () => void;
   loadConfig: (options: { local: boolean }) => Promise<void>;
-  applyDevFixes: (type: DevFixType, text: string) => Error | null;
-  resetDevFixes: (type: DevFixType) => void;
-  startActivation: (email: string, key: string) => Promise<void>;
-  resetActivation: () => Promise<void>;
   hideHighlights: (ids: string[]) => Promise<void>;
 }
 
@@ -82,28 +76,6 @@ export default class Messenger {
             case MessageTypeUItoBG.GET_DATA:
                 promise = Messenger.adapter.collect();
                 break;
-            case MessageTypeUItoBG.GET_DEVTOOLS_DATA:
-                promise = Messenger.adapter.collectDevToolsData();
-                break;
-                // These types require data, so we need to add a listener to the port.
-            case MessageTypeUItoBG.APPLY_DEV_FIXES:
-                promise = new Promise((resolve, reject) => {
-                    port.onMessage.addListener(
-                        (message: MessageUItoBG | MessageCStoBG) => {
-                            const {data} = message;
-                            const error = Messenger.adapter.applyDevFixes(
-                                data.type,
-                                data.text,
-                            );
-                            if (error) {
-                                reject(error);
-                            } else {
-                                resolve(null);
-                            }
-                        },
-                    );
-                });
-                break;
             default:
                 return;
         }
@@ -141,11 +113,6 @@ export default class Messenger {
             case MessageTypeUItoBG.LOAD_CONFIG:
                 Messenger.adapter.loadConfig(data);
                 break;
-            case MessageTypeUItoBG.APPLY_DEV_FIXES: {
-                const error = Messenger.adapter.applyDevFixes(data.type, data.text);
-                sendResponse({error: error ? error.message : undefined});
-                break;
-            }
             case MessageTypeUItoBG.HIDE_HIGHLIGHTS:
                 Messenger.adapter.hideHighlights(data);
                 break;

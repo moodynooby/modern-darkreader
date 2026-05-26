@@ -1,10 +1,10 @@
 import {m} from 'malevic';
 import {sync} from 'malevic/dom';
 
-import type {ExtensionData, ExtensionActions} from '../../definitions';
+import type {ExtensionData, ExtensionActions, DebugMessageBGtoCS, DebugMessageBGtoUI} from '../../definitions';
+import {DebugMessageTypeBGtoUI} from '../../utils/message';
 import {isMobile, isFirefox} from '../../utils/platform';
 import Connector from '../connect/connector';
-import {setupDebugHotReload} from '../debug-hotreload';
 import {getFontList, saveFile} from '../utils';
 import Body from './components/body';
 import {fixNotClosingPopupOnNavigation} from './utils/issues';

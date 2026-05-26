@@ -12,15 +12,6 @@ import typescript from 'typescript';
 import {absolutePath} from './paths.js';
 import {createTask} from './task.js';
 
-async function getVersion() {
-    const file = await fs.promises.readFile(
-        new URL('../package.json', import.meta.url),
-        'utf8',
-    );
-    const p = JSON.parse(file);
-    return p.version;
-}
-
 /** @type {string[]} */
 let watchFiles = [];
 

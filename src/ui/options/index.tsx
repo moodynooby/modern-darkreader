@@ -1,11 +1,10 @@
 import {m} from 'malevic';
 import {sync} from 'malevic/dom';
 
-import type {ExtensionData} from '../../definitions';
+import type {ExtensionData, DebugMessageBGtoCS, DebugMessageBGtoUI} from '../../definitions';
+import {DebugMessageTypeBGtoUI} from '../../utils/message';
 import {isFirefox, isMobile} from '../../utils/platform';
 import Connector from '../connect/connector';
-import {setupDebugHotReload} from '../debug-hotreload';
-
 import Body from './body/body';
 
 declare const __CHROMIUM_MV3__: boolean;

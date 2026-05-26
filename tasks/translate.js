@@ -111,6 +111,7 @@ function parseLocale(content) {
         if (line.startsWith('@')) {
             id = line.substring(1);
         } else if (line.startsWith('#')) {
+        // skip comment lines
         } else if (messages.has(id)) {
             const message = messages.get(id);
             messages.set(id, `${message}\n${line}`);

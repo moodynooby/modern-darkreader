@@ -1,4 +1,4 @@
-import type {ExtensionData, ExtensionActions, Theme, UserSettings, DevToolsData, MessageUItoBG, MessageBGtoUI, DevFixType} from '../../definitions';
+import type {ExtensionData, ExtensionActions, Theme, UserSettings, MessageUItoBG, MessageBGtoUI} from '../../definitions';
 import {MessageTypeBGtoUI, MessageTypeUItoBG} from '../../utils/message';
 import {isFirefox} from '../../utils/platform';
 
@@ -16,9 +16,9 @@ export default class Connector implements ExtensionActions {
         this.changeSubscribers = new Set();
     }
 
-    private async sendRequest<T>(type: MessageTypeUItoBG, data?: {type: DevFixType; text: string}): Promise<T> {
+    private async sendRequest<T>(type: MessageTypeUItoBG): Promise<T> {
         return new Promise<T>((resolve, reject) => {
-            chrome.runtime.sendMessage<MessageUItoBG>({type, data}, ({data, error}: MessageUItoBG) => {
+            chrome.runtime.sendMessage<MessageUItoBG>({type}, ({data, error}: MessageUItoBG) => {
                 if (error) {
                     reject(error);
                 } else {
@@ -28,7 +28,7 @@ export default class Connector implements ExtensionActions {
         });
     }
 
-    private async firefoxSendRequestWithResponse<T>(type: MessageTypeUItoBG, data?: {type: DevFixType; text: string}): Promise<T> {
+    private async firefoxSendRequestWithResponse<T>(type: MessageTypeUItoBG): Promise<T> {
         return new Promise<T>((resolve, reject) => {
             const dataPort = chrome.runtime.connect({name: type});
             dataPort.onDisconnect.addListener(() => reject());
@@ -40,7 +40,6 @@ export default class Connector implements ExtensionActions {
                 }
                 dataPort.disconnect();
             });
-            data && dataPort.postMessage({data});
         });
     }
 
@@ -49,13 +48,6 @@ export default class Connector implements ExtensionActions {
             return await this.firefoxSendRequestWithResponse<ExtensionData>(MessageTypeUItoBG.GET_DATA);
         }
         return await this.sendRequest<ExtensionData>(MessageTypeUItoBG.GET_DATA);
-    }
-
-    async getDevToolsData(): Promise<DevToolsData> {
-        if (isFirefox) {
-            return await this.firefoxSendRequestWithResponse<DevToolsData>(MessageTypeUItoBG.GET_DEVTOOLS_DATA);
-        }
-        return await this.sendRequest<DevToolsData>(MessageTypeUItoBG.GET_DEVTOOLS_DATA);
     }
 
     private onChangesReceived = ({type, data}: MessageBGtoUI) => {
@@ -105,35 +97,8 @@ export default class Connector implements ExtensionActions {
         chrome.runtime.sendMessage<MessageUItoBG>({type: MessageTypeUItoBG.TOGGLE_ACTIVE_TAB, data: {}});
     }
 
-    markNewsAsRead(ids: string[]): void {
-        chrome.runtime.sendMessage<MessageUItoBG>({type: MessageTypeUItoBG.MARK_NEWS_AS_READ, data: ids});
-    }
-
-    markNewsAsDisplayed(ids: string[]): void {
-        chrome.runtime.sendMessage<MessageUItoBG>({type: MessageTypeUItoBG.MARK_NEWS_AS_DISPLAYED, data: ids});
-    }
-
     loadConfig(options: {local: boolean}): void {
         chrome.runtime.sendMessage<MessageUItoBG>({type: MessageTypeUItoBG.LOAD_CONFIG, data: options});
-    }
-
-    async applyDevFixes(type: DevFixType, text: string): Promise<void> {
-        if (isFirefox) {
-            return await this.firefoxSendRequestWithResponse<void>(MessageTypeUItoBG.APPLY_DEV_FIXES, {type, text});
-        }
-        return await this.sendRequest<void>(MessageTypeUItoBG.APPLY_DEV_FIXES, {type, text});
-    }
-
-    resetDevFixes(type: DevFixType): void {
-        chrome.runtime.sendMessage<MessageUItoBG>({type: MessageTypeUItoBG.RESET_DEV_FIXES, data: {type}});
-    }
-
-    startActivation(email: string, key: string): void {
-        chrome.runtime.sendMessage<MessageUItoBG>({type: MessageTypeUItoBG.START_ACTIVATION, data: {email, key}});
-    }
-
-    resetActivation(): void {
-        chrome.runtime.sendMessage<MessageUItoBG>({type: MessageTypeUItoBG.RESET_ACTIVATION});
     }
 
     async hideHighlights(ids: string[]): Promise<void> {

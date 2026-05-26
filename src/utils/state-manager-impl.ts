@@ -154,6 +154,7 @@ export class StateManagerImpl<T extends Record<string, unknown>> {
         switch (this.meta) {
             case StateManagerImplState.INITIAL:
                 this.meta = StateManagerImplState.READY;
+                // falls through
             case StateManagerImplState.READY:
                 this.applyState(state);
                 this.notifyListeners();

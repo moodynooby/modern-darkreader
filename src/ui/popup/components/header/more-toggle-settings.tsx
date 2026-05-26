@@ -157,8 +157,8 @@ export default function MoreToggleSettings({
                         onchange={(e: { target: HTMLInputElement }) =>
                             locationChanged(e.target, e.target.value, 'latitude')
                         }
-                        oncreate={(node: HTMLInputElement) =>
-                            (node.value = getLocationString(locationSettings.latitude))
+                        oncreate={(node) =>
+                            ((node as HTMLInputElement).value = getLocationString(locationSettings.latitude))
                         }
                         onkeypress={(e: KeyboardEvent) => {
                             if (e.key === 'Enter') {
@@ -172,8 +172,8 @@ export default function MoreToggleSettings({
                         onchange={(e) =>
                             locationChanged(e.target, e.target.value, 'longitude')
                         }
-                        oncreate={(node: HTMLInputElement) =>
-                            (node.value = getLocationString(locationSettings.longitude))
+                        oncreate={(node) =>
+                            ((node as HTMLInputElement).value = getLocationString(locationSettings.longitude))
                         }
                         onkeypress={(e) => {
                             if (e.key === 'Enter') {

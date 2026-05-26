@@ -14,7 +14,6 @@ export function makeChromiumHappy(): void {
             if (
                 ![
                     MessageTypeUItoBG.GET_DATA,
-                    MessageTypeUItoBG.APPLY_DEV_FIXES,
                 ].includes(message.type as MessageTypeUItoBG) &&
         (message.type !== MessageTypeCStoBG.DOCUMENT_CONNECT ||
           !isPanel(sender))

@@ -28,10 +28,6 @@ export interface ExtensionData {
   uiHighlights: string[];
 }
 
-export type DevFixType = 'detector' | 'dynamic' | 'filter' | 'static';
-
-export type DevToolsData = Record<DevFixType, string>;
-
 export interface TabData {
   type: MessageTypeBGtoCS;
   data?: any;
@@ -43,8 +39,6 @@ export interface ExtensionActions {
   setShortcut(command: string, shortcut: string): Promise<string | null>;
   toggleActiveTab(): void;
   loadConfig(options: { local: boolean }): void;
-  applyDevFixes(type: DevFixType, text: string): Promise<void>;
-  resetDevFixes(type: DevFixType): void;
   hideHighlights(ids: string[]): void;
 }
 
