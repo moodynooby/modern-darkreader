@@ -42,6 +42,7 @@ export class VariablesStore {
     private typeChangeSubscriptions = new Map<string, Set<() => void>>();
     private unstableVarValues = new Map<string, string>();
     private varFilterTypes = new Map<string, FilterType>();
+    private notifyingVarFilterTypes = new Set<string>();
     private onRootVariableDefined: () => void;
 
     clear(): void {
@@ -58,6 +59,7 @@ export class VariablesStore {
         this.typeChangeSubscriptions.clear();
         this.unstableVarValues.clear();
         this.varFilterTypes.clear();
+        this.notifyingVarFilterTypes.clear();
     }
 
     private isVarType(varName: string, typeNum: number) {
@@ -194,12 +196,15 @@ export class VariablesStore {
                             (fallback) => tryModifyBgColor(fallback, theme),
                         );
                     }
+                    const pushFilter = rule.selectorText ?
+                        (type: FilterType) => this.setVarFilterType(varName, type) :
+                        null;
                     const bgModifier = getBgImageModifier(
                         modifiedValue,
                         rule,
                         ignoredImgSelectors,
                         isCancelled,
-                        (type) => this.setVarFilterType(varName, type),
+                        pushFilter,
                     );
                     modifiedValue = typeof bgModifier === 'function' ? bgModifier(theme) : bgModifier!;
                     declarations.push({
@@ -214,6 +219,9 @@ export class VariablesStore {
             const callbacks = new Set<() => void>();
 
             const addListener = (onTypeChange: (decs: ModifiedVarDeclaration[]) => void) => {
+                if (!rule.selectorText) {
+                    return;
+                }
                 const callback = () => {
                     const decs = getDeclarations();
                     onTypeChange(decs);
@@ -360,9 +368,14 @@ export class VariablesStore {
             return;
         }
         this.varFilterTypes.set(varName, type);
+        if (this.notifyingVarFilterTypes.has(varName)) {
+            return;
+        }
         const subs = this.typeChangeSubscriptions.get(varName);
         if (subs && subs.size > 0) {
+            this.notifyingVarFilterTypes.add(varName);
             subs.forEach((callback) => callback());
+            this.notifyingVarFilterTypes.delete(varName);
         }
     }
 
@@ -569,10 +582,6 @@ export class VariablesStore {
     }
 
     putRootVars(styleElement: HTMLStyleElement, theme: Theme): void {
-        const sheet = styleElement.sheet!;
-        if (sheet.cssRules.length > 0) {
-            sheet.deleteRule(0);
-        }
         const declarations = new Map<string, string>();
         iterateCSSDeclarations(document.documentElement.style, (property, value) => {
             if (isVariable(property)) {
@@ -595,7 +604,15 @@ export class VariablesStore {
         }
         cssLines.push('}');
         const cssText = cssLines.join('\n');
-        sheet.insertRule(cssText);
+        const sheet = styleElement.sheet;
+        if (sheet) {
+            if (sheet.cssRules.length > 0) {
+                sheet.deleteRule(0);
+            }
+            sheet.insertRule(cssText);
+        } else {
+            styleElement.textContent = cssText;
+        }
     }
 }
 

@@ -5,15 +5,15 @@ import {forEach, push, toArray} from '../../utils/array';
 import {clearColorCache, getSRGBLightness, parseColorWithCache} from '../../utils/color';
 import {clamp} from '../../utils/math';
 import {isFirefox} from '../../utils/platform';
-import {requestAnimationFrameOnce, throttle} from '../../utils/throttle';
+import {throttle} from '../../utils/throttle';
 import {generateUID} from '../../utils/uid';
 import {parsedURLCache} from '../../utils/url';
 import {setDocumentVisibilityListener, documentIsVisible, removeDocumentVisibilityListener} from '../../utils/visibility';
 import {removeNode, watchForNodePosition, iterateShadowHosts, isDOMReady, removeDOMReadyListener, cleanReadyStateCompleteListeners, addDOMReadyListener, setIsDOMReady} from '../utils/dom';
 import {logInfo, logWarn} from '../utils/log';
 
-import type {AdoptedStyleSheetManager, AdoptedStyleSheetFallback} from './adopted-style-manger';
-import {createAdoptedStyleSheetOverride, createAdoptedStyleSheetFallback, canHaveAdoptedStyleSheets} from './adopted-style-manger';
+import type {AdoptedStyleSheetManager} from './adopted-style-manger';
+import {createAdoptedStyleSheetOverride, canHaveAdoptedStyleSheets} from './adopted-style-manger';
 import {combineFixes, findRelevantFix} from './fixes';
 import {getStyleInjectionMode, injectStyleAway, removeStyleContainer} from './injection';
 import {overrideInlineStyle, getInlineOverrideStyle, watchForInlineStyles, stopWatchingForInlineStyles, INLINE_STYLE_SELECTOR} from './inline-style';
@@ -35,8 +35,6 @@ declare const __CHROMIUM_MV3__: boolean;
 const INSTANCE_ID = generateUID();
 const styleManagers = new Map<StyleElement, StyleManager>();
 const adoptedStyleManagers: AdoptedStyleSheetManager[] = [];
-const adoptedStyleFallbacks = new Map<CSSStyleSheet, AdoptedStyleSheetFallback>();
-const adoptedStyleChangeTokens = new WeakMap<CSSStyleSheet, symbol>();
 let theme: Theme | null = null;
 let fixes: DynamicThemeFix | null = null;
 let isIFrame: boolean | null = null;
@@ -169,21 +167,21 @@ function setInversionStyleValue(invertStyle: HTMLStyleElement) {
     };
 
     if ((fixes && Array.isArray(fixes.invert) && fixes.invert.length > 0) || filterSelectors.invert.size > 0) {
-        const extraInversionSelectors = [...filterSelectors.invert];
+        const extraInversionSelectors = [...filterSelectors.invert]
         const invertSelectors = [...(fixes?.invert ?? []), ...extraInversionSelectors];
         const invertFilter = getCSSFilterValue({
             ...theme,
             contrast: theme.mode === 0 ? theme.contrast : clamp(theme.contrast - 10, 0, 100),
         });
         appendRule(invertSelectors, invertFilter);
-        appendCounterInversion(invertSelectors);
+        appendCounterInversion(extraInversionSelectors);
         if (filterSelectors.none.size > 0) {
             const noneSelectors = [...filterSelectors.none];
             appendInversionCancellation(noneSelectors);
             if (theme.mode === 1) {
                 const invertedChildSelectors: string[] = [];
                 noneSelectors.forEach((parent) => {
-                    invertSelectors.forEach((child) => invertedChildSelectors.push(`${parent} > ${child}`));
+                    extraInversionSelectors.forEach((child) => invertedChildSelectors.push(`${parent} > ${child}`));
                 });
                 appendRule(invertedChildSelectors, invertFilter);
             }
@@ -370,46 +368,6 @@ function createDynamicStyleOverrides() {
     variablesStore.matchVariablesAndDependents();
 
     tryInvertChromePDF();
-
-    if (isFirefox) {
-        type NodeSheet = {
-            sheetId: number;
-            sheet: CSSStyleSheet;
-        };
-
-        const onAdoptedCssChange = (e: CustomEvent) => {
-            const {sheets} = e.detail;
-            if (!Array.isArray(sheets) || sheets.length === 0) {
-                return;
-            }
-            sheets.forEach(({sheet}: NodeSheet) => {
-                const {cssRules} = sheet;
-                variablesStore.addRulesForMatching(cssRules);
-            });
-            variablesStore.matchVariablesAndDependents();
-            const response: Array<{sheetId: number; commands: any}> = [];
-            sheets.forEach(({sheetId, sheet}: NodeSheet) => {
-                const fallback = getAdoptedStyleSheetFallback(sheet);
-                const cssRules = sheet.cssRules;
-                fallback.render({
-                    theme: theme!,
-                    ignoreImageAnalysis: ignoredImageAnalysisSelectors!,
-                    cssRules,
-                });
-                const commands = fallback.commands();
-                response.push({sheetId, commands});
-            });
-
-            requestAnimationFrameOnce(getAdoptedStyleChangeToken(sheets[0].sheet), () => {
-                document.dispatchEvent(new CustomEvent('__darkreader__adoptedStyleSheetCommands', {detail: JSON.stringify(response)}));
-            });
-        };
-
-        document.addEventListener('__darkreader__adoptedStyleSheetsChange', onAdoptedCssChange as EventListener);
-        cleaners.push(() => document.removeEventListener('__darkreader__adoptedStyleSheetsChange', onAdoptedCssChange as EventListener));
-
-        document.dispatchEvent(new CustomEvent('__darkreader__startAdoptedStyleSheetsWatcher'));
-    }
 }
 
 let loadingStylesCounter = 0;
@@ -501,13 +459,13 @@ function createThemeAndWatchForUpdates() {
     changeMetaThemeColorWhenAvailable(theme!);
 }
 
-function handleAdoptedStyleSheets(node: ShadowRoot | Document) {
-    if (isFirefox) {
-        return;
-    }
+function unwrap<T>(value: T): T {
+    return (value as any)?.wrappedJSObject ?? value;
+}
 
+function handleAdoptedStyleSheets(node: ShadowRoot | Document) {
     if (canHaveAdoptedStyleSheets(node)) {
-        node.adoptedStyleSheets.forEach((s) => {
+        forEach(isFirefox ? unwrap(node.adoptedStyleSheets) : node.adoptedStyleSheets, (s) => {
             variablesStore.addRulesForMatching(s.cssRules);
         });
         const newManger = createAdoptedStyleSheetOverride(node);
@@ -521,24 +479,6 @@ function handleAdoptedStyleSheets(node: ShadowRoot | Document) {
             newManger.render(theme!, ignoredImageAnalysisSelectors);
         });
     }
-}
-
-function getAdoptedStyleChangeToken(sheet: CSSStyleSheet) {
-    if (adoptedStyleChangeTokens.has(sheet)) {
-        return adoptedStyleChangeTokens.get(sheet)!;
-    }
-    const token = Symbol();
-    adoptedStyleChangeTokens.set(sheet, token);
-    return token;
-}
-
-function getAdoptedStyleSheetFallback(sheet: CSSStyleSheet) {
-    let fallback = adoptedStyleFallbacks.get(sheet);
-    if (!fallback) {
-        fallback = createAdoptedStyleSheetFallback();
-        adoptedStyleFallbacks.set(sheet, fallback);
-    }
-    return fallback;
 }
 
 function watchForUpdates() {
@@ -969,8 +909,6 @@ export function removeDynamicTheme(): void {
 
     adoptedStyleManagers.forEach((manager) => manager.destroy());
     adoptedStyleManagers.splice(0);
-    adoptedStyleFallbacks.forEach((fallback) => fallback.destroy());
-    adoptedStyleFallbacks.clear();
 
     metaObserver && metaObserver.disconnect();
     scheduleInversionStyleUpdate.cancel();

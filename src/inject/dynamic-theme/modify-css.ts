@@ -71,11 +71,11 @@ export function getModifiableCSSDeclaration(
     rule: CSSStyleRule,
     variablesStore: VariablesStore,
     ignoreImageSelectors: string[],
-    isCancelled: (() => boolean) | null,
+    isCancelled: () => boolean,
 ): ModifiableCSSDeclaration | null {
     let modifier: ModifiableCSSDeclaration['value'] | null = null;
     if (property.startsWith('--')) {
-        modifier = getVariableModifier(variablesStore, property, value, rule, ignoreImageSelectors, isCancelled!);
+        modifier = getVariableModifier(variablesStore, property, value, rule, ignoreImageSelectors, isCancelled);
     } else if (value.includes('var(')) {
         modifier = getVariableDependantModifier(variablesStore, property, value, rule);
     } else if (property === 'color-scheme') {
@@ -109,7 +109,7 @@ export function getModifiableCSSDeclaration(
         const pushFilter = selectorText
             ? (type: FilterType) => pushFilterSelector(selectorText, type)
             : null;
-        modifier = getBgImageModifier(value, rule, ignoreImageSelectors, isCancelled!, pushFilter);
+        modifier = getBgImageModifier(value, rule, ignoreImageSelectors, isCancelled, pushFilter);
     } else if (property.includes('shadow')) {
         modifier = getShadowModifier(value);
     } else if (bgPropsToCopy.includes(property) && value !== 'initial') {
@@ -573,6 +573,14 @@ export function getBgImageModifier(
             };
         };
 
+        const isSafeToInvert = () => {
+            const repeat = (rule.style.backgroundRepeat || '').toLowerCase();
+            const size = (rule.style.backgroundSize || '').toLowerCase();
+            const isTiled = repeat.length > 0 && repeat !== 'no-repeat' && !repeat.includes('no-repeat');
+            const isStretched = size.includes('cover') || size.includes('contain') || size.includes('100%');
+            return !isTiled && !isStretched;
+        };
+
         const getBgImageValue = (imageDetails: ImageDetails, theme: Theme) => {
             const {isDark, isLight, isTransparent, isLarge, solidColor, width} = imageDetails;
             let result: string | null = null;
@@ -585,7 +593,7 @@ export function getBgImageModifier(
                 if (canFilterImage(imageDetails.src)) {
                     const inverted = getFilteredImageURL(imageDetails, {...theme, sepia: clamp(theme.sepia + 10, 0, 100)});
                     result = `url("${inverted}")`;
-                } else {
+                } else if (isSafeToInvert()) {
                     pushFilter?.('invert');
                 }
             } else if (isLight && !isTransparent && theme.mode === 1) {
@@ -598,7 +606,7 @@ export function getBgImageModifier(
                     logInfo(`Inverting light image ${logSrc}`);
                     const inverted = getFilteredImageURL(imageDetails, theme);
                     result = `url("${inverted}")`;
-                } else {
+                } else if (isSafeToInvert()) {
                     pushFilter?.('invert');
                 }
             } else if (theme.mode === 0 && isLight && imageDetails.dataURL) {

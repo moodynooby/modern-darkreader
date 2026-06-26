@@ -22,7 +22,7 @@ function hasBuiltInDarkTheme() {
     for (let y = Math.floor(stepY / 2); y < winHeight; y += stepY) {
         for (let x = Math.floor(stepX / 2); x < winWidth; x += stepX) {
             const element = document.elementFromPoint(x, y);
-            if (!element || processedElements.has(element)) {
+            if (!element || processedElements.has(element) || element.tagName.toLocaleLowerCase() === 'img') {
                 continue;
             }
             processedElements.add(element);
@@ -36,7 +36,7 @@ function hasBuiltInDarkTheme() {
             }
             if (bgColor.a === 1) {
                 const bgLightness = getSRGBLightness(bgColor.r, bgColor.g, bgColor.b);
-                if (bgLightness > 0.5) {
+                if (bgLightness > 0.6) {
                     return false;
                 }
             } else {
@@ -45,7 +45,7 @@ function hasBuiltInDarkTheme() {
                     return false;
                 }
                 const textLightness = getSRGBLightness(textColor.r, textColor.g, textColor.b);
-                if (textLightness < 0.5) {
+                if (textLightness < 0.4) {
                     return false;
                 }
             }
