@@ -23,8 +23,6 @@
         "jsx": "react",
         "jsxFactory": "m",
         "noEmit": true,
-        "paths": {
-            "@plus/*": ["./plus/*"]
-        }
+        "paths": {}
     }
 }

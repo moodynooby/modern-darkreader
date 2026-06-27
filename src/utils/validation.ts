@@ -278,13 +278,6 @@ export function validateSettings(
         DEFAULT_SETTINGS
     );
 
-    validateProperty(settings, 'previewNewDesign', isBoolean, DEFAULT_SETTINGS);
-    validateProperty(
-        settings,
-        'previewNewestDesign',
-        isBoolean,
-        DEFAULT_SETTINGS
-    );
     validateProperty(settings, 'enableForPDF', isBoolean, DEFAULT_SETTINGS);
     validateProperty(
         settings,

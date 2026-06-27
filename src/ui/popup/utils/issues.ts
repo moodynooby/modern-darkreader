@@ -1,5 +1,3 @@
-declare const __THUNDERBIRD__: boolean;
-
 export function fixNotClosingPopupOnNavigation(): void {
     document.addEventListener('click', (e) => {
         if (e.defaultPrevented || e.button === 2) {
@@ -12,9 +10,7 @@ export function fixNotClosingPopupOnNavigation(): void {
         if (target && target.hasAttribute('href')) {
             chrome.tabs.create({url: target.getAttribute('href')!});
             e.preventDefault();
-            if (!__THUNDERBIRD__) {
-                window.close();
-            }
+            window.close();
         }
     });
 }

@@ -25,7 +25,6 @@ export interface ExtensionData {
   colorScheme: ParsedColorSchemeConfig;
   forcedScheme: 'dark' | 'light' | null;
   activeTab: TabInfo;
-  uiHighlights: string[];
 }
 
 export interface TabData {
@@ -39,7 +38,6 @@ export interface ExtensionActions {
   setShortcut(command: string, shortcut: string): Promise<string | null>;
   toggleActiveTab(): void;
   loadConfig(options: { local: boolean }): void;
-  hideHighlights(ids: string[]): void;
 }
 
 export interface ExtWrapper {
@@ -107,8 +105,6 @@ export interface UserSettings {
   automation: Automation;
   time: TimeSettings;
   location: LocationSettings;
-  previewNewDesign: boolean;
-  previewNewestDesign: boolean;
   enableForPDF: boolean;
   enableForProtectedPages: boolean;
   detectDarkTheme: boolean;

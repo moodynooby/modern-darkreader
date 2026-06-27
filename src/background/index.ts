@@ -22,7 +22,6 @@ import {
 import {isFirefox} from '../utils/platform';
 
 import {Extension} from './extension';
-import {makeChromiumHappy} from './make-chromium-happy';
 import {ASSERT} from './utils/log';
 import {sendLog} from './utils/sendLog';
 
@@ -287,8 +286,6 @@ if (__DEBUG__ && __LOG__) {
         }
     });
 }
-
-makeChromiumHappy();
 
 function writeInstallationVersion(
     storage: chrome.storage.SyncStorageArea | chrome.storage.LocalStorageArea,

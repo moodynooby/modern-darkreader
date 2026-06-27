@@ -6,8 +6,7 @@ export enum MessageTypeUItoBG {
   SET_THEME = 'ui-bg-set-theme',
   TOGGLE_ACTIVE_TAB = 'ui-bg-toggle-active-tab',
   LOAD_CONFIG = 'ui-bg-load-config',
-  COLOR_SCHEME_CHANGE = 'ui-bg-color-scheme-change',
-  HIDE_HIGHLIGHTS = 'ui-bg-hide-highlights'
+  COLOR_SCHEME_CHANGE = 'ui-bg-color-scheme-change'
 }
 
 export enum MessageTypeBGtoUI {

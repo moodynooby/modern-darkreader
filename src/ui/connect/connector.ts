@@ -101,10 +101,6 @@ export default class Connector implements ExtensionActions {
         chrome.runtime.sendMessage<MessageUItoBG>({type: MessageTypeUItoBG.LOAD_CONFIG, data: options});
     }
 
-    async hideHighlights(ids: string[]): Promise<void> {
-        chrome.runtime.sendMessage<MessageUItoBG>({type: MessageTypeUItoBG.HIDE_HIGHLIGHTS, data: ids});
-    }
-
     disconnect(): void {
         if (this.changeSubscribers.size > 0) {
             this.changeSubscribers.clear();

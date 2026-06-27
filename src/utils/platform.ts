@@ -1,7 +1,5 @@
-declare const __CHROMIUM_MV2__: boolean;
 declare const __CHROMIUM_MV3__: boolean;
 declare const __FIREFOX_MV2__: boolean;
-declare const __THUNDERBIRD__: boolean;
 declare const __TEST__: boolean;
 
 interface UserAgentData {
@@ -28,13 +26,13 @@ const platform = isNavigatorDefined ? (navigator.userAgentData && typeof navigat
     navigator.userAgentData.platform.toLowerCase() : navigator.platform.toLowerCase()
     : 'some platform';
 
-export const isChromium = __CHROMIUM_MV2__ || __CHROMIUM_MV3__ || (!__FIREFOX_MV2__ && !__THUNDERBIRD__ && (userAgent.includes('chrome') || userAgent.includes('chromium')));
-export const isFirefox = __FIREFOX_MV2__ || __THUNDERBIRD__ || ((__TEST__ || (!__CHROMIUM_MV2__ && !__CHROMIUM_MV3__)) && (userAgent.includes('firefox') || userAgent.includes('thunderbird') || userAgent.includes('librewolf')));
-export const isVivaldi = (__CHROMIUM_MV2__ || __CHROMIUM_MV3__) && (!__FIREFOX_MV2__ && !__THUNDERBIRD__ && userAgent.includes('vivaldi'));
-export const isYaBrowser = (__CHROMIUM_MV2__ || __CHROMIUM_MV3__) && (!__FIREFOX_MV2__ && !__THUNDERBIRD__ && userAgent.includes('yabrowser'));
-export const isOpera = (__CHROMIUM_MV2__ || __CHROMIUM_MV3__) && (!__FIREFOX_MV2__ && !__THUNDERBIRD__ && (userAgent.includes('opr') || userAgent.includes('opera')));
-export const isEdge = (__CHROMIUM_MV2__ || __CHROMIUM_MV3__) && (!__FIREFOX_MV2__ && !__THUNDERBIRD__ && userAgent.includes('edg'));
-export const isSafari = !__CHROMIUM_MV2__ && !__CHROMIUM_MV3__ && !__FIREFOX_MV2__ && !__THUNDERBIRD__ && userAgent.includes('safari') && !isChromium;
+export const isChromium = __CHROMIUM_MV3__ || (!__FIREFOX_MV2__ && (userAgent.includes('chrome') || userAgent.includes('chromium')));
+export const isFirefox = __FIREFOX_MV2__ || ((__TEST__ || !__CHROMIUM_MV3__) && (userAgent.includes('firefox') || userAgent.includes('librewolf')));
+export const isVivaldi = __CHROMIUM_MV3__ && (!__FIREFOX_MV2__ && userAgent.includes('vivaldi'));
+export const isYaBrowser = __CHROMIUM_MV3__ && (!__FIREFOX_MV2__ && userAgent.includes('yabrowser'));
+export const isOpera = __CHROMIUM_MV3__ && (!__FIREFOX_MV2__ && (userAgent.includes('opr') || userAgent.includes('opera')));
+export const isEdge = __CHROMIUM_MV3__ && (!__FIREFOX_MV2__ && userAgent.includes('edg'));
+export const isSafari = !__CHROMIUM_MV3__ && !__FIREFOX_MV2__ && userAgent.includes('safari') && !isChromium;
 export const isWindows = platform.startsWith('win');
 export const isMacOS = platform.startsWith('mac');
 export const isMobile = (isNavigatorDefined && navigator.userAgentData) ? navigator.userAgentData.mobile : userAgent.includes('mobile');
@@ -44,10 +42,10 @@ export const isMatchMediaChangeEventListenerSupported = __CHROMIUM_MV3__ || (
     typeof MediaQueryList.prototype.addEventListener === 'function'
 );
 export const isLayerRuleSupported = typeof CSSLayerBlockRule === 'function';
-export const isMatchMediaChangeEventListenerBuggy = !__TEST__ && !__FIREFOX_MV2__ && !__THUNDERBIRD__ && (__CHROMIUM_MV2__ || __CHROMIUM_MV3__) && (
+export const isMatchMediaChangeEventListenerBuggy = !__TEST__ && !__FIREFOX_MV2__ && __CHROMIUM_MV3__ && (
     ((isNavigatorDefined && navigator.userAgentData) && ['Linux', 'Android'].includes(navigator.userAgentData.platform))
     || platform.startsWith('linux'));
-export const isNonPersistent = !__FIREFOX_MV2__ && !__THUNDERBIRD__ && (__CHROMIUM_MV3__ || isSafari);
+export const isNonPersistent = !__FIREFOX_MV2__ && (__CHROMIUM_MV3__ || isSafari);
 
 export const chromiumVersion = (() => {
     const m = userAgent.match(/chrom(?:e|ium)(?:\/| )([^ ]+)/);
