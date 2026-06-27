@@ -40,8 +40,6 @@ export function getMockData(
                 behavior: 'OnOff',
                 mode: '',
             },
-            previewNewDesign: false,
-            previewNewestDesign: false,
             time: {
                 activation: '18:00',
                 deactivation: '9:00',
@@ -88,7 +86,6 @@ export function getMockData(
             isInjected: true,
             isDarkThemeDetected: false,
         },
-        uiHighlights: [],
     } as ExtensionData,
     override
     );

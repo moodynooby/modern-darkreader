@@ -15,7 +15,7 @@
     "debug:watch:firefox": "node --max-old-space-size=3072 tasks/cli.js build --debug --watch  --firefox",
     "dependencies:upgrade": "node tasks/dependencies.js",
     "lint": "eslint -- src/**/*.ts src/**/*.tsx tasks/**/*.js eslint.config.js index.d.ts",
-    "fix": "npx eslint --fix -- src/**/*.ts src/**/*.tsx tasks/**/*.js eslint.config.js index.d.ts",
+    "fix": "eslint --fix -- src/**/*.ts src/**/*.tsx tasks/**/*.js eslint.config.js index.d.ts",
     "lint:bundle": "(node ./tasks/check-exists.js ./build/debug/chrome || node tasks/build.js --debug --api --chrome) && eslint -- 'build/debug/chrome/**/*.js' 'darkreader.js' 'darkreader.mjs'",
     "release": "npm run lint && node tasks/cli.js build --release",
     "translate-en-message": "node ./tasks/translate.js --message",
@@ -40,8 +40,7 @@
     "eye-care"
   ],
   "dependencies": {
-    "malevic": "0.20.2",
-    "web-ext": "^9.2.0"
+    "malevic": "0.20.2"
   },
   "devDependencies": {
     "@eslint/compat": "2.1.0",

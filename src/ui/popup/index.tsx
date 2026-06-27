@@ -6,21 +6,16 @@ import {DebugMessageTypeBGtoUI} from '../../utils/message';
 import {isMobile, isFirefox} from '../../utils/platform';
 import Connector from '../connect/connector';
 import {getFontList, saveFile} from '../utils';
-import Body from './components/body';
+import Body from './body';
 import {fixNotClosingPopupOnNavigation} from './utils/issues';
 
 function renderBody(
     data: ExtensionData,
     fonts: string[],
-    installation: { date: number; version: string },
     actions: ExtensionActions,
 ) {
-    if (data.settings.previewNewDesign) {
-        if (!document.documentElement.classList.contains('preview')) {
-            document.documentElement.classList.add('preview');
-        }
-    } else if (document.documentElement.classList.contains('preview')) {
-        document.documentElement.classList.remove('preview');
+    if (!document.documentElement.classList.contains('preview')) {
+        document.documentElement.classList.add('preview');
     }
 
     sync(
@@ -29,24 +24,8 @@ function renderBody(
             data={data}
             actions={actions}
             fonts={fonts}
-            installation={installation}
         />,
     );
-}
-
-async function getInstallationData() {
-    return new Promise<any>((resolve) => {
-        chrome.storage.local.get<Record<string, any>>(
-            {installation: {}},
-            (data) => {
-                if (data?.installation?.version) {
-                    resolve(data.installation);
-                } else {
-                    resolve({});
-                }
-            },
-        );
-    });
 }
 
 async function start() {
@@ -55,14 +34,13 @@ async function start() {
         passive: true,
     });
 
-    const [data, fonts, installation] = await Promise.all([
+    const [data, fonts] = await Promise.all([
         connector.getData(),
         getFontList(),
-        getInstallationData(),
     ]);
-    renderBody(data, fonts, installation, connector);
+    renderBody(data, fonts, connector);
     connector.subscribeToChanges((data) =>
-        renderBody(data, fonts, installation, connector),
+        renderBody(data, fonts, connector),
     );
 }
 

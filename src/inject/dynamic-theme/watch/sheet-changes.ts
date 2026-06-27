@@ -1,5 +1,3 @@
-declare const __THUNDERBIRD__: boolean;
-
 interface SheetWatcher {
     start(): void;
     stop(): void;
@@ -18,7 +16,7 @@ export function createSheetWatcher(
 
     function watchForSheetChanges() {
         watchForSheetChangesUsingProxy();
-        if (!__THUNDERBIRD__ && !(canUseSheetProxy && element.sheet)) {
+        if (!(canUseSheetProxy && element.sheet)) {
             rafSheetWatcher = createRAFSheetWatcher(element, safeGetSheetRules, callback, isCancelled);
             rafSheetWatcher.start();
         }

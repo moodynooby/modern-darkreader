@@ -11,7 +11,6 @@ import {
 } from './utils/parse';
 import type {SiteFixesIndex} from './utils/parse';
 
-declare const __CHROMIUM_MV2__: boolean;
 declare const __CHROMIUM_MV3__: boolean;
 
 const dynamicThemeFixesCommands: { [key: string]: keyof DynamicThemeFix } = {
@@ -79,10 +78,9 @@ export function getDynamicThemeFixesFor(
         const commonFix = {...fixes[0], invert};
         const pdfFixes: DynamicThemeFix[] = [commonFix, ...fixes.slice(1)];
 
-        const inversionFix =
-      __CHROMIUM_MV2__ || __CHROMIUM_MV3__
-          ? '\nembed[type="application/pdf"][src="about:blank"] { filter: invert(100%) contrast(90%); }'
-          : '\nembed[type="application/pdf"] { filter: invert(100%) contrast(90%); }';
+        const inversionFix = __CHROMIUM_MV3__
+            ? '\nembed[type="application/pdf"][src="about:blank"] { filter: invert(100%) contrast(90%); }'
+            : '\nembed[type="application/pdf"] { filter: invert(100%) contrast(90%); }';
         if (!commonFix.css.endsWith(inversionFix)) {
             commonFix.css += inversionFix;
         }

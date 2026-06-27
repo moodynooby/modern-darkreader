@@ -39,9 +39,7 @@ let unloaded = false;
 
 let darkReaderDynamicThemeStateForTesting: 'loading' | 'ready' = 'loading';
 
-declare const __CHROMIUM_MV2__: boolean;
 declare const __CHROMIUM_MV3__: boolean;
-declare const __THUNDERBIRD__: boolean;
 declare const __FIREFOX_MV2__: boolean;
 
 const scriptId = generateUID();
@@ -223,15 +221,14 @@ function sendConnectionOrResumeMessage(
     sendMessage({
         type,
         scriptId,
-        data:
-      __CHROMIUM_MV2__ || __CHROMIUM_MV3__
-          ? {
-              isDark: isSystemDarkModeEnabled(),
-              isTopFrame: window === window.top,
-          }
-          : {
-              isDark: isSystemDarkModeEnabled(),
-          },
+        data: __CHROMIUM_MV3__
+            ? {
+                isDark: isSystemDarkModeEnabled(),
+                isTopFrame: window === window.top,
+            }
+            : {
+                isDark: isSystemDarkModeEnabled(),
+            },
     });
 }
 
@@ -264,11 +261,9 @@ function onDarkThemeDetected() {
     sendMessage({type: MessageTypeCStoBG.DARK_THEME_DETECTED});
 }
 
-if (!__THUNDERBIRD__) {
-    addEventListener('pagehide', onPageHide, {passive: true});
-    addEventListener('freeze', onFreeze, {passive: true});
-    addEventListener('resume', onResume, {passive: true});
-}
+addEventListener('pagehide', onPageHide, {passive: true});
+addEventListener('freeze', onFreeze, {passive: true});
+addEventListener('resume', onResume, {passive: true});
 
 if (__TEST__) {
     async function awaitDOMContentLoaded() {

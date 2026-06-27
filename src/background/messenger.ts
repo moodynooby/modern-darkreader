@@ -19,7 +19,6 @@ export interface ExtensionAdapter {
   setTheme: (theme: Partial<Theme>) => void;
   toggleActiveTab: () => void;
   loadConfig: (options: { local: boolean }) => Promise<void>;
-  hideHighlights: (ids: string[]) => Promise<void>;
 }
 
 export default class Messenger {
@@ -112,9 +111,6 @@ export default class Messenger {
                 break;
             case MessageTypeUItoBG.LOAD_CONFIG:
                 Messenger.adapter.loadConfig(data);
-                break;
-            case MessageTypeUItoBG.HIDE_HIGHLIGHTS:
-                Messenger.adapter.hideHighlights(data);
                 break;
             default:
                 break;

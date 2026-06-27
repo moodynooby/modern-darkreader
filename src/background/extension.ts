@@ -21,7 +21,6 @@ import IconManager from './icon-manager';
 import type {ExtensionAdapter} from './messenger';
 import Messenger from './messenger';
 import TabManager from './tab-manager';
-import UIHighlights from './ui-highlights';
 import UserStorage from './user-storage';
 import {getCommands, canInjectScript} from './utils/extension-api';
 import {logInfo, logWarn} from './utils/log';
@@ -38,9 +37,7 @@ interface SystemColorState extends Record<string, unknown> {
     wasLastColorSchemeDark: boolean | null;
 }
 
-declare const __CHROMIUM_MV2__: boolean;
 declare const __CHROMIUM_MV3__: boolean;
-declare const __THUNDERBIRD__: boolean;
 
 export class Extension {
     private static autoState: AutomationState = '';
@@ -220,9 +217,7 @@ export class Extension {
         Extension.onAppToggle();
         logInfo('loaded', UserStorage.settings);
 
-        if (__THUNDERBIRD__) {
-            TabManager.registerMailDisplayScript();
-        } else if (!__CHROMIUM_MV3__ || Extension.isFirstLoad) {
+        if (!__CHROMIUM_MV3__ || Extension.isFirstLoad) {
             TabManager.updateContentScript({runOnProtectedPages: UserStorage.settings.enableForProtectedPages});
         }
         Extension.startBarrier!.resolve();
@@ -237,7 +232,6 @@ export class Extension {
             setTheme: Extension.setTheme,
             toggleActiveTab: Extension.toggleActiveTab,
             loadConfig: ConfigManager.load,
-            hideHighlights: UIHighlights.hideHighlights,
         };
     }
 
@@ -273,17 +267,12 @@ export class Extension {
                             target: {tabId, frameIds: [frameId]},
                             func: detectPDF,
                         }))[0].result || false;
-                    } else if (__CHROMIUM_MV2__) {
-                        return new Promise<boolean>((resolve) => chrome.tabs.executeScript(tabId, {
-                            frameId,
-                            code: `(${detectPDF.toString()})()`,
-                        }, (results) => resolve(results?.[0])));
                     }
                     return false;
                 }
 
                 const pdf = async () => isPDF(frameURL || await TabManager.getActiveTabURL());
-                if (((__CHROMIUM_MV2__ || __CHROMIUM_MV3__) && await scriptPDF(tabId!, frameId!)) || await pdf()) {
+                if ((__CHROMIUM_MV3__ && await scriptPDF(tabId!, frameId!)) || await pdf()) {
                     Extension.changeSettings({enableForPDF: !UserStorage.settings.enableForPDF});
                 } else {
                     Extension.toggleActiveTab();
@@ -314,12 +303,10 @@ export class Extension {
             shortcuts,
             activeTab,
             isAllowedFileSchemeAccess,
-            uiHighlights,
         ] = await Promise.all([
             Extension.getShortcuts(),
             Extension.getActiveTabInfo(),
             new Promise<boolean>((r) => chrome.extension.isAllowedFileSchemeAccess(r)),
-            UIHighlights.getHighlightsToShow(),
         ]);
         return {
             isEnabled: Extension.isExtensionSwitchedOn(),
@@ -330,7 +317,6 @@ export class Extension {
             colorScheme: ConfigManager.COLOR_SCHEMES_RAW!,
             forcedScheme: Extension.autoState === 'scheme-dark' ? 'dark' : Extension.autoState === 'scheme-light' ? 'light' : null,
             activeTab,
-            uiHighlights,
         };
     }
 
